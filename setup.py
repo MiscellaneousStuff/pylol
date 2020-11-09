@@ -24,7 +24,8 @@ setup(
     url='https://github.com/MiscellaneousStuff/pylol',
     packages=[
         'pylol',
-    ]
+        'pylol.agents'
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',

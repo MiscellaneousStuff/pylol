@@ -21,15 +21,31 @@
 # SOFTWARE.
 """Hardcoded scripted agent."""
 
+from random import randint
+
+# Rewards
+REWARD_WEIGHT = {
+    "death": -3.0,
+    "dealing_dmg": +0.4,
+    "taking_dmg": -0.4,
+    "timestep_elapsed": -0.001, # unset for now, probably not needed
+    "kill": +3.0
+}
+
 # Agent
 class ScriptedAgent:
-    def __init__(self, name, id, champ, team, lolpy):
+    def __init__(self, name, id, champ, team, lolenv):
         # Game data
         self.name = name
         self.id = id
         self.champ = champ
         self.team = team
-        self.lolpy = lolpy
+        self.lolenv = lolenv
+
+        # Meta Data
+        self.rewards = []
+        self.steps = 0
+        self.episodes = 0
 
         # ML data
         self.state_action_buffer = [] # current ep => (state, action, reward)
@@ -109,10 +125,10 @@ class ScriptedAgent:
 
     # teleport the player on spawn
     def spawn(self, x, y):
-        self.lolpy.player_teleport(self.id, x, y)
+        self.lolenv.player_teleport(self.id, x, y)
 
     # takes an observation from the game server, asks the game server to perform an action, records the (state, action) combo
-    def act(self, observation, counter):
+    def act(self, observation, step):
         print("Player: " + self.team + " Act")
         # print("Champ Units:", observation["champ_units"])
 
@@ -159,97 +175,118 @@ class ScriptedAgent:
         if action_choice == 0: # Move
             x = randint(-4, +4)
             y = randint(-4, +4)
-            action = lolpy.player_move(self.id, x, y)
+            action = lolenv.player_move(self.id, x, y)
         elif action_choice == 1: # Spell
             spell = 0
-            action = lolpy.player_spell(self.id, 2, spell)
+            action = lolenv.player_spell(self.id, 2, spell)
         elif action_choice == 2: # Noop
-            action = lolpy.player_noop(self.id)
+            action = lolenv.player_noop(self.id)
         """
 
         # Heal Ally if Low
         for champ_unit in observation["champ_units"]:
-            if champ_unit["my_team"] == 1.0:
+            if champ_unit["my_team"] == 1.0 and champ_unit["user_id"] == 1:
                 if champ_unit["current_hp"] < 200:
-                    action = self.lolpy.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
+                    action = self.lolenv.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
                     self.state_action_buffer.append([state, action, 0])
         
+        """
         # If previous action was auto attack, noop
         if len(self.state_action_buffer) > 8:
             if self.state_action_buffer[-1][1]["type"] == "spell":
-                action = self.lolpy.player_noop(self.id)
+                action = self.lolenv.player_noop(self.id)
             elif self.state_action_buffer[-2][1]["type"] == "spell":
-                # action = lolpy.player_noop(self.id)
-                action = self.lolpy.player_attack(self.id, enemy_id)
+                # action = lolenv.player_noop(self.id)
+                action = self.lolenv.player_attack(self.id, enemy_id)
             elif self.state_action_buffer[-1][1]["type"] == "attack":
-                action = self.lolpy.player_noop(self.id)
+                action = self.lolenv.player_noop(self.id)
             elif self.state_action_buffer[-1][1]["type"] == "move":
                 x = randint(-4, 4)
                 y = randint(-4, 4)
-                action = self.lolpy.player_move(self.id, x, y)
+                action = self.lolenv.player_move(self.id, x, y)
             elif self.state_action_buffer[-2][1]["type"] == "move":
                 choice = randint(0, 1)
                 if choice == 0:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolpy.player_move(self.id, x, y)
+                    action = self.lolenv.player_move(self.id, x, y)
                 elif choice == 1:
                     #spell = 0
                     spell = randint(0, 2)
                     # if spell == 1: spell = 2
                     if closest_enemy_unit["alive"] == 1.0:
-                        action = self.lolpy.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                        action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                     else:
                         x = randint(-4, 4)
                         y = randint(-4, 4)
-                        action = self.lolpy.player_move(self.id, x, y)
+                        action = self.lolenv.player_move(self.id, x, y)
             else: #self.state_action_buffer[-1][1]["type"] == "attack":
                 choice = randint(0, 1)
                 if choice == 0:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolpy.player_move(self.id, x, y)
+                    action = self.lolenv.player_move(self.id, x, y)
                 elif choice == 1:
                     #spell = 0
                     spell = randint(0, 2)
                     # if spell == 1: spell = 2
                     if closest_enemy_unit["alive"] == 1.0:
-                        action = self.lolpy.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                        action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                     else:
                         x = randint(-4, 4)
                         y = randint(-4, 4)
-                        action = self.lolpy.player_move(self.id, x, y)
+                        action = self.lolenv.player_move(self.id, x, y)
         else:
             choice = randint(0, 1)
             if choice == 0:
                 x = randint(-4, 4)
                 y = randint(-4, 4)
-                action = self.lolpy.player_move(self.id, x, y)
+                action = self.lolenv.player_move(self.id, x, y)
             elif choice == 1:
                 #spell = 0
                 spell = randint(0, 2)
                 # if spell == 1: spell = 2
                 if closest_enemy_unit["alive"] == 1.0:
-                    action = self.lolpy.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                    action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                 else:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolpy.player_move(self.id, x, y)
+                    action = self.lolenv.player_move(self.id, x, y)
+        """
 
         # Spell on enemy
-        # action = lolpy.player_spell(self.id, enemy_id, 0)
-        # action = lolpy.player_attack(self.id, 1)
-
-        """
+        # action = lolenv.player_spell(self.id, enemy_id, 0)
+        # action = lolenv.player_attack(self.id, 1)
+        
         # Move and Attack
-        if counter % 2 == 0:
+        if step % 2 == 0:
             x = randint(-4, 4)
             y = randint(-4, 4)
-            action = lolpy.player_move(self.id, x, y)
+            action = self.lolenv.player_move(self.id, x, y)
         else:
-            spell = 0
-            action = lolpy.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
-        """
+            spell = randint(0, 2)
+            action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
 
         # Record (State, Action)
         self.state_action_buffer.append([state, action, 0])
+
+    def reset(self):
+        if self.rewards != []:
+            mean_reward = sum(self.rewards) / len(self.rewards)
+            print("Episode: {}: Reward {}".format(self.episodes, mean_reward))
+
+        if self.team == "BLUE":
+            self.spawn(7500-500, 7500-500)
+        elif self.team == "PURPLE":
+            self.spawn(7500+500, 7500+500)
+        self.steps = 0
+        self.episodes += 1
+
+    def step(self, obs):
+        if self.steps == 0:
+            self.act(obs, self.steps)
+            self.rewards = self.update()
+        else:
+            self.act(obs, self.steps)
+            self.rewards = self.update(self.steps-1, self.steps)
+        self.steps += 1

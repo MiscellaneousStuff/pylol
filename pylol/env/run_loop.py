@@ -21,10 +21,80 @@
 # SOFTWARE.
 """A run loop for agent/environment interaction."""
 
+import time
+import os
+import sys
+
 def run_loop(agents, env, max_episodes=0):
-    """A run loop for agent/environment interaction."""
     total_episodes = 0
+    start_time = time.time()
+    steps = 0
 
     try:
         while total_episodes < max_episodes:
+            # Waits 1 second for an observation from the GameServer
+            # If none are found, quit
+            obs_list = []
+            for agent in agents:
+                obs = env.get_observation()
+                if obs == None:
+                    print("KILLING PROCESS: ")
+                    os.system("killall -9 GameServerConsole")
+                    os.system("killall -9 redis-server")
+                    # RedisServer.kill()
+                    sys.exit()
+                obs_list.append(obs)
+            
+            # Print game time
+            print(obs_list[0]["game_time"])
+
+            # Agents react to observation
+            for obs, agent in zip(obs_list, agents):
+                agent.step(obs)
+            steps += 1
+            
+            # If someone has died, the episode has finished
+            if env.someone_died(obs_list[0]) and len(agents[0].state_action_buffer) > 4:
+
+                # Update agents
+                for agent in agents:
+                    agent.store_episode()
+                
+                # Reset both players by reviving them
+                env.players_reset()
+
+                # Re-teleport them
+                for agent in agents:
+                    agent.reset()
+                
+                # Increment episode
+                total_episodes += 1
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        elapsed_time = time.time() - start_time
+        print("Took %.3f seconds for %s steps: %.3f fps" % (
+            elapsed_time, steps, steps / elapsed_time))
+
+"""
+def run_loop(agents, env, max_episodes=0):
+    # A run loop for agent/environment interaction
+    total_episodes = 0
+    start_time = time.time()
+
+    observation_spec = env.observation_spec()
+    action_spec = env.action_spec()
+    for agent, obs_spec, act_spec in zip(agents, observation_spec, action_spec):
+        agent.setup(obs_spec, act_spec)
+    try:
+        while total_episodes < max_episodes:
             total_episodes += 1
+    except KeyboardInterrupt:
+        pass
+    finally:
+        elapsed_time = time.time() - start_time
+        print("Took %.3f seconds for %s steps: %.3f fps" % (
+            elapsed_time, steps, steps / elapsed_time))
+"""

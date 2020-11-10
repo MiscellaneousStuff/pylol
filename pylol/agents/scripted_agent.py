@@ -34,13 +34,13 @@ REWARD_WEIGHT = {
 
 # Agent
 class ScriptedAgent:
-    def __init__(self, name, id, champ, team, lolenv):
+    def __init__(self, name, id, champ, team, env):
         # Game data
         self.name = name
         self.id = id
         self.champ = champ
         self.team = team
-        self.lolenv = lolenv
+        self.env = env
 
         # Meta Data
         self.rewards = []
@@ -125,7 +125,8 @@ class ScriptedAgent:
 
     # teleport the player on spawn
     def spawn(self, x, y):
-        self.lolenv.player_teleport(self.id, x, y)
+        print("SPAWN->SELF.ENV:", self.env)
+        self.env.player_teleport(self.id, x, y)
 
     # takes an observation from the game server, asks the game server to perform an action, records the (state, action) combo
     def act(self, observation, step):
@@ -187,71 +188,71 @@ class ScriptedAgent:
         for champ_unit in observation["champ_units"]:
             if champ_unit["my_team"] == 1.0 and champ_unit["user_id"] == 1:
                 if champ_unit["current_hp"] < 200:
-                    action = self.lolenv.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
+                    action = self.env.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
                     self.state_action_buffer.append([state, action, 0])
         
         """
         # If previous action was auto attack, noop
         if len(self.state_action_buffer) > 8:
             if self.state_action_buffer[-1][1]["type"] == "spell":
-                action = self.lolenv.player_noop(self.id)
+                action = self.env.player_noop(self.id)
             elif self.state_action_buffer[-2][1]["type"] == "spell":
                 # action = lolenv.player_noop(self.id)
-                action = self.lolenv.player_attack(self.id, enemy_id)
+                action = self.env.player_attack(self.id, enemy_id)
             elif self.state_action_buffer[-1][1]["type"] == "attack":
-                action = self.lolenv.player_noop(self.id)
+                action = self.env.player_noop(self.id)
             elif self.state_action_buffer[-1][1]["type"] == "move":
                 x = randint(-4, 4)
                 y = randint(-4, 4)
-                action = self.lolenv.player_move(self.id, x, y)
+                action = self.env.player_move(self.id, x, y)
             elif self.state_action_buffer[-2][1]["type"] == "move":
                 choice = randint(0, 1)
                 if choice == 0:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolenv.player_move(self.id, x, y)
+                    action = self.env.player_move(self.id, x, y)
                 elif choice == 1:
                     #spell = 0
                     spell = randint(0, 2)
                     # if spell == 1: spell = 2
                     if closest_enemy_unit["alive"] == 1.0:
-                        action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                        action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                     else:
                         x = randint(-4, 4)
                         y = randint(-4, 4)
-                        action = self.lolenv.player_move(self.id, x, y)
+                        action = self.env.player_move(self.id, x, y)
             else: #self.state_action_buffer[-1][1]["type"] == "attack":
                 choice = randint(0, 1)
                 if choice == 0:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolenv.player_move(self.id, x, y)
+                    action = self.env.player_move(self.id, x, y)
                 elif choice == 1:
                     #spell = 0
                     spell = randint(0, 2)
                     # if spell == 1: spell = 2
                     if closest_enemy_unit["alive"] == 1.0:
-                        action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                        action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                     else:
                         x = randint(-4, 4)
                         y = randint(-4, 4)
-                        action = self.lolenv.player_move(self.id, x, y)
+                        action = self.env.player_move(self.id, x, y)
         else:
             choice = randint(0, 1)
             if choice == 0:
                 x = randint(-4, 4)
                 y = randint(-4, 4)
-                action = self.lolenv.player_move(self.id, x, y)
+                action = self.env.player_move(self.id, x, y)
             elif choice == 1:
                 #spell = 0
                 spell = randint(0, 2)
                 # if spell == 1: spell = 2
                 if closest_enemy_unit["alive"] == 1.0:
-                    action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+                    action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
                 else:
                     x = randint(-4, 4)
                     y = randint(-4, 4)
-                    action = self.lolenv.player_move(self.id, x, y)
+                    action = self.env.player_move(self.id, x, y)
         """
 
         # Spell on enemy
@@ -262,10 +263,10 @@ class ScriptedAgent:
         if step % 2 == 0:
             x = randint(-4, 4)
             y = randint(-4, 4)
-            action = self.lolenv.player_move(self.id, x, y)
+            action = self.env.player_move(self.id, x, y)
         else:
             spell = randint(0, 2)
-            action = self.lolenv.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+            action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
 
         # Record (State, Action)
         self.state_action_buffer.append([state, action, 0])

@@ -19,19 +19,27 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""A random agent for league of legends."""
+"""Print the valid actions."""
 
-import numpy
+from absl import app
+#from absl import flags
 
-from pylol.agents import base_agent
 from pylol.lib import actions
+from pylol.lib import features
 
-class RandomAgent(base_agent.BaseAgent):
-    """A random agent for league of legends."""
+def main(unused_argv):
+    """Print the valid actions."""
+    feats = features.Features()
+    action_spec = feats.action_spec()
+    for func in action_spec.functions:
+        count += 1
+        act_flat += 1
+        for arg in func.args:
+            for size in arg.sizes:
+                act_flat *= size
+        print(func.str(True))
+    print("Total base actions:", count)
+    print("Total possible actions (flattened):", flattened)
 
-    def step(self, obs):
-        super(RandomAgent, self).step(obs)
-        # function_id = numpy.random.choice(obs.observation.available_actions)
-        # args = [[numpy.random.randint(0, size) for size in arg.sizes]
-        #         for arg in self.action_spec.functions[function_id].args]
-        # return actions.FunctionCall(function_id, args)
+if __name__ == "__main__":
+    app.run(main)

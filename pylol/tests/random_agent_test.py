@@ -19,19 +19,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""A random agent for league of legends."""
+"""Run a random agent for a few steps."""
 
-import numpy
+from absl.testing import absltest
 
-from pylol.agents import base_agent
-from pylol.lib import actions
+from pylol.agents import random_agent
+from pylol.env import run_loop
+from pylol.env import lol_env
+from pylol.tests import utils
 
-class RandomAgent(base_agent.BaseAgent):
-    """A random agent for league of legends."""
+"""
+class TestRandomAgent(utils.TestCase):
+    def test_random_agent(self):
+        with lol_env.LoLEnv(
+            map_name="Old Summoners Rift"
+        )
+"""
 
-    def step(self, obs):
-        super(RandomAgent, self).step(obs)
-        # function_id = numpy.random.choice(obs.observation.available_actions)
-        # args = [[numpy.random.randint(0, size) for size in arg.sizes]
-        #         for arg in self.action_spec.functions[function_id].args]
-        # return actions.FunctionCall(function_id, args)
+if __name__ == "__main__":
+    absltest.main()

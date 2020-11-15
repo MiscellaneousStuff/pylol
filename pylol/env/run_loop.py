@@ -26,9 +26,6 @@ import os
 import sys
 
 def run_loop(agents, env, max_episodes=0):
-    # Tell GameServer to start sending observations
-    # env.start_observing()
-
     # Loop variables
     total_episodes = 0
     start_time = time.time()
@@ -100,6 +97,13 @@ def run_loop(agents, env, max_episodes=0):
     try:
         while total_episodes < max_episodes:
             total_episodes += 1
+            actions = [agent.step(timestep)
+                       for agent, timestep in zip(agents, timesteps)]
+            if max_frames and total_frames >= max_frames:
+                return
+            if timesteps[0].last():
+                break
+            timesteps = env.step(actions)
     except KeyboardInterrupt:
         pass
     finally:

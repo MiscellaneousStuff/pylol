@@ -43,6 +43,97 @@ class Agent(collections.namedtuple("Agent", ("champion", "team"))):
     def __new__(cls, champion, team):
         return super(Agent, cls).__new__(cls, (champion, team))
 
+class LoLEnv(environment.Base):
+    """A League of Legends v4.20 environment.
+
+    The implementation details of the action and observation specs are in
+    lib/features.py
+    """
+    def __init__(self,
+                 map_name=None,
+                 players=None,
+                 replay_dir=None):
+        """Create a League of Legends v4.20 Env.
+
+        Args:
+            map_name: Name of a League of Legends v4.20 map. If non are chosen
+                this defaults to `Old Summoners Rift`.
+            players: A list of Agent instances that specify who will play.
+            replay_dir: Directory for the custom replay file to save to.
+        """
+
+        if not players:
+            raise ValueError("You must specify the list of players.")
+            
+        for p in players:
+            if not isinstance(p, (Agent)):
+                raise ValueError(
+                    "Expected players to be of type Agent. Got: %s." % p)
+        
+        num_players = len(players)
+        self.num_agents = sum(1 for p in players if isinstance(p, Agent))
+        self.players = players
+
+        if not map_name:
+            raise ValueError("Missing a map name.")
+        
+        self.map_name = map_name
+        self.run_config = run_configs.get()
+        self.game_info = None
+
+        self.launch_game()
+
+        self.finalize()
+
+    def finalize(self):
+        self.total_steps = 0
+        self.episode_steps = 0
+        self.episode_count = 0
+        self.obs = [None] * self.num_agents
+        self.state = environ,ent.StepType.LAST
+        logging.info("Environment is ready.")
+
+    def launch_game(self):
+        """Actually launch the GameServer."""
+        self.lol_procs = [
+            self.run_config.start()
+        ]
+        self.controllers = [p.controller for p in self.lol_procs]
+    
+    @property
+    def map_name(self):
+        """Get the current map name."""
+        return self.map_name
+    
+    @property
+    def game_info(self):
+        return self.game_info
+    
+    def observation_spec(self):
+        """Look at Features for full spec."""
+        return tuple(f.observation_spec() for f in self.features)
+    
+    def action_spec(self):
+        """Look at Features for full spec."""
+        return tuple(f.action_spec() for f in self.features)
+    
+    def step(self):
+        """Apply actions, step the world forward, and return observations.
+
+        Args:
+            actions: A list of actions meeting the action spec, one per agent, or a
+                list per agent. Using a list allows multiple actions per frame, but
+                will still check that they're valid, so disabling
+                ensure_available actions is encouraged.
+        
+        Returns:
+            A tuple of TimeStep namedtuples, one per agent.
+        """
+
+        if self.state == environment.StepType.LAST:
+            return self.reset()
+
+
 MAP = {
     "Old Summoners Rift": 1,
     "New Summoners Rift": 11,

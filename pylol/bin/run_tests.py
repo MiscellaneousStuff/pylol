@@ -19,14 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Find and run the tests.
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+Run as python3 -m pylol.bin.run_tests
+"""
 
-import os
+from absl.testing import absltest
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+import pylol
+
+if __name__ == "__main__":
+    absltest.main(module=pylol)

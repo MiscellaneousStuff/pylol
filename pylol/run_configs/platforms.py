@@ -19,8 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Configs for how to run League of Legends v4.20 from a custom directory on
-various platforms"""
+"""Configs for how to run GameServerConsole from custom directories on
+different platforms."""
 
 import os
 import platform
@@ -57,7 +57,7 @@ class Windows(LocalBase):
     """Run on windows."""
 
     def __init__(self, exec_path):
-        super(Windows, self).__init__(exec_path, "League of Legends.exe")
+        super(Windows, self).__init__(exec_path, "GameServerConsole.exe")
 
     @classmethod
     def priority(cls):
@@ -66,9 +66,9 @@ class Windows(LocalBase):
 
 class Linux(LocalBase):
     """Config to run on Linux."""
-    
+    # Put `Config to run on Linux.` message here when uncommenting
     def __init__(self, exec_path):
-        super(Linux, self).__init__(exec_path, "./League of Legends.exe")
+        super(Linux, self).__init__(exec_path, "./GameServerConsole")
     
     @classmethod
     def priority(cls):

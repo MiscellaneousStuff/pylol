@@ -19,14 +19,38 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Protocol library to make communication easy."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from absl import flags
 
-import os
+import redis
+import json
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+import sys
+
+flags.DEFINE_integer("lol_verbose_protocol", 0,
+                     ("Print the communication packets with LoL. 0 disables. "
+                      "-1 means all. >0 will print that many lines per"
+                      "packet."))
+FLAGS = flags.FLAGS
+
+class ConnectionError(Exception):
+    """Failed to connect to the redis server."""
+    pass
+
+class LoLProtocol(object):
+    """Defines the protocol for chatting with the redis server that communicates with starcraft."""
+
+    def __init__(self, host="localhost", port=6379, timeout=1):
+        self.pool = redis.ConnectionPool(host=host, port=port, db=0)
+        self.r = redis.Redis(connection_pool=self.pool)
+        self.timeout = timeout
+    
+    def log(self, s, *args):
+        """Log a string"""
+        sys.stderr.write((s + "\n") % args)
+        sys.stderr.flush()
+    
+    def read(self):
+        """  """
+        pass

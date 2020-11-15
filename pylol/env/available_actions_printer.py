@@ -19,14 +19,26 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""An env wrapper to print the available actions."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from pylol.env import base_env_wrapper
 
-import os
+class AvailableActionsPrinter(base_env_wrapper.BaseEnvWrapper):
+    """An env wrapper to print the available actions."""
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+    def __init__(self, env):
+        super(AvailableActionsPrinter, self).__init__(env)
+        self.seen = set()
+        self.action_spec = self.action_spec()[0]
+    
+    def step(self, *args, **kwargs):
+        all_obs = super(AvailableActionsPrinter, self).step(*args, **kwargs)
+        for obs in all_obs:
+            for avail in obs.observation["available_actions"]:
+                if avail not in self.seen:
+                    self.seen.add(avail)
+                    self.print(self.action_spec.functions[avail].str(True))
+        return all_obs
+    
+    def print(self, s):
+        print(s)

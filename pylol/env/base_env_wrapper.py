@@ -19,14 +19,34 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""A base env wrapper so we don't need to override everything every time."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from pylol.env import environment
 
-import os
+class BaseEnvWrapper(environment.Base):
+    """A base env wrapper so we don't need to override everything every time."""
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+    def __init__(self, env):
+        self.env = env
+    
+    def close(self, *args, **kwargs):
+        return self.env.close(*args, **kwargs)
+    
+    def action_spec(self, *args, **kwargs):
+        return self.env.action_spec(*args, **kwargs)
+
+    def observation_spec(self, *args, **kwargs):
+        return self.env.observation_spec(*args, **kwargs)
+    
+    def reset(self, *args, **kwargs):
+        return self.env.reset(*args, **kwargs)
+    
+    def step(self, *args, **kwargs):
+        return self.env.step(*args, **kwargs)
+    
+    def save_replay(self, *args, **kwargs):
+        return self.env.save_replay(*args, **kwargs)
+    
+    @property
+    def state(self):
+        return self.env.state

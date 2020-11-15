@@ -21,122 +21,27 @@
 # SOFTWARE.
 """A League of Legends v4.20 environment."""
 
-import redis
-import json
-import subprocess
-
 import collections
+from absl import logging
+import random
+import time
+
+import enum
+
+from pylol import maps
+from pylol import run_configs
+from pylol.env import environment
+from pylol.lib import actions as actions_lib
+
+class Team(enum.IntEnum):
+    blue = 0
+    purple = 1
+    neutral = 2
 
 class Agent(collections.namedtuple("Agent", ("champion", "team"))):
     """Define an Agent. Each agent has a champion and which team it belongs to"""
     def __new__(cls, champion, team):
         return super(Agent, cls).__new__(cls, (champion, team))
-
-class LoLEnv():
-    def __init__(self, settings, host="localhost", port=6379, db=0, timeout=1):
-        self.pool = redis.ConnectionPool(host=host, port=port, db=db)
-        self.r = redis.Redis(connection_pool=self.pool)
-        self.timeout = timeout
-        self.running = True
-        self.settings = settings
-
-    def reset_data_streamer(self, key):
-        self.r.delete(key)
-
-    def update_data_streamer(self, key, data):
-        self.r.lpush(key, json.dumps({"rewards": data}))
-
-    # Check if someone died for this observation
-    def someone_died(self, observation):
-        champ_units = observation["champ_units"]
-        for champ_unit in champ_units:
-            if champ_unit["alive"] == 0.0:
-                return True
-        return False
-
-    def start_observing(self):
-        # Reset action and observation pipes
-        self.r.delete("action")
-        self.r.delete("observation")
-
-        # Tell the server to start accepting actions and observations
-        self.r.lpush("command", "start_observing")
-
-    def get_observation(self):
-        json_txt = self.r.brpop("observation", self.timeout)
-        if json_txt == None:
-            self.running = False
-            print("Error: Observation timed out")
-            return None
-        else:
-            return json.loads(json_txt[1].decode("utf-8"))
-    
-    def player_attack(self, player_id, target_player_id):
-        action = {
-            "player_id": str(player_id),
-            "target_player_id": str(target_player_id)
-        }
-        self.r.lpush("action", "attack")
-        self.r.lpush("action", json.dumps(action))
-        return {"type": "attack", "data": action}
-
-    def player_spell(self, player_id, target_player_id, spell_slot, x, y):
-        action = {
-            "player_id": str(player_id),
-            "target_player_id": str(target_player_id),
-            "spell_slot": int(spell_slot),
-            "x": float(x * 1.0),
-            "y": float(y * 1.0)
-        }
-        self.r.lpush("action", "spell")
-        self.r.lpush("action", json.dumps(action))
-        return {"type": "spell", "data": action}
-
-    def players_reset(self):
-        self.r.lpush("action", "reset")
-        self.r.lpush("action", "")
-
-    def player_move(self, player_id, x, y):
-        action = {
-            "player_id": str(player_id),
-            "x": float(x * 100.0),
-            "y": float(y * 100.0)
-        }
-        self.r.lpush("action", "move")
-        self.r.lpush("action", json.dumps(action))
-        return {"type": "move", "data": action}
-
-    def player_move_to(self, player_id, x, y):
-        action = {
-            "player_id": str(player_id),
-            "x": float(x),
-            "y": float(y)
-        }
-        self.r.lpush("action", "move_to")
-        self.r.lpush("action", json.dumps(action))
-
-    def player_teleport(self, player_id, x, y):
-        action = {
-            "player_id": str(player_id),
-            "x": float(x),
-            "y": float(y)
-        }
-        self.r.lpush("action", "teleport")
-        self.r.lpush("action", json.dumps(action))
-
-    def player_noop(self, n=1):
-        for i in range(n):
-            self.r.lpush("action", "noop")
-            self.r.lpush("action", "")
-        return {"type": "noop", "data": ""}
-
-    def player_change(self, player_id, champion_name):
-        command = {
-            "player_id": player_id,
-            "champion_name": champion_name
-        }
-        self.r.lpush("command", "change_champion")
-        self.r.lpush("command", json.dumps(command))
 
 MAP = {
     "Old Summoners Rift": 1,

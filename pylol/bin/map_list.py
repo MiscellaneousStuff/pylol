@@ -1,3 +1,4 @@
+
 # MIT License
 # 
 # Copyright (c) 2020 MiscellaneousStuff
@@ -19,14 +20,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Print the list of defined maps."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from absl import app
+from pylol import maps
 
-import os
+def main(unused_argv):
+    for _, map_class in sorted(maps.get_maps().items()):
+        mp = map_class()
+        print(mp)
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+if __name__ == "__main__":
+    app.run(main)

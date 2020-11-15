@@ -27,12 +27,7 @@ import sys
 
 def run_loop(agents, env, max_episodes=0):
     # Tell GameServer to start sending observations
-    env.start_observing()
-
-    # First 2 actions to game server are to randomly spawn our agents
-    env.players_reset()
-    for agent in agents:
-        agent.reset()
+    # env.start_observing()
 
     # Loop variables
     total_episodes = 0
@@ -45,15 +40,20 @@ def run_loop(agents, env, max_episodes=0):
             # If none are found, quit
             obs_list = []
             for agent in agents:
-                obs = env.get_observation()
+                obs = env.observe()
                 if obs == None:
                     print("KILLING PROCESS: ")
                     os.system("killall -9 GameServerConsole")
                     os.system("killall -9 redis-server")
-                    # RedisServer.kill()
                     sys.exit()
                 obs_list.append(obs)
             
+            # Do initialization after observation (because observation initialization embedded within every observation)
+            if steps == 0:
+                env.players_reset()
+                for agent in agents:
+                    agent.reset()
+
             # Print game time
             print(obs_list[0]["game_time"])
 

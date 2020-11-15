@@ -19,14 +19,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Unit test tools."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from absl.testing import absltest
 
-import os
+class TestCase(absltest.TestCase):
+    """A test base class which isn't implemented for now."""
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+    def setUp(self):
+        super(TestCase, self).setUp()
+    
+    def tearDown(self):
+        super(TestCase, self).tearDown()

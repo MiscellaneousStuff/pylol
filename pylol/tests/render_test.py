@@ -19,14 +19,23 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""Verify that the game renders."""
 
-"""PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
+from absl.testing import absltest
 
-import os
+from pylol import maps
+from pylol import run_configs
+from pylol.tests import utils
 
-def load_tests(loader, standard_tests, unused_pattern):
-    """Our tests end in `_test.py`, so need to ovveride the test directory."""
-    this_dir = os.path.dirname(__file__)
-    package_tests = loader.discover(start_dir=this_dir, pattern="*_test.py")
-    standard_tests.addTests(package_tests)
-    return standard_tests
+class TestRender(utils.TestCase):
+
+    def test_render(self):
+        run_config = run_configs.get()
+        print("Run config priority:", run_config.priority())
+        with run_config.start() as controller:
+            map_inst = maps.get("Old Summoners Rift")
+            #create = None
+            #game_info = controller.game_info()
+
+if __name__ == "__main__":
+    absltest.main()

@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# from absl import flags
+#from absl import flags
 
 from pylol.lib import lol_process
 from pylol.run_configs import platforms
@@ -37,10 +37,12 @@ def get():
     configs = {c.name(): c
         for c in lib.RunConfig.all_subclasses() if c.priority()}
     
+    print("List of Run Configs:", configs)
+
     if not configs:
         raise lol_process.LoLLaunchError("No valid run_configs found.")
     
-    # if FLAGS.lol_run_config is None:
+    #if FLAGS.lol_run_config is None:
     return max(configs.values(), key=lambda c: c.priority())
 
     """

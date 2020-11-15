@@ -36,3 +36,20 @@ class RunConfig(object):
 
     def start(self):
         raise NotImplementedError()
+    
+    @classmethod
+    def priority(cls):
+        """None means this isn't valid. Run the one with the max priority."""
+        return None
+        
+    @classmethod
+    def all_subclasses(cls):
+        """An iterator over all subclasses of `cls`."""
+        for s in cls.__subclasses__():
+            yield s
+            for c in s.all_subclasses():
+                yield c
+    
+    @classmethod
+    def name(cls):
+        return cls.__name__

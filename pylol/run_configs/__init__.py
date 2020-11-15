@@ -19,3 +19,35 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+# from absl import flags
+
+from pylol.lib import lol_process
+from pylol.run_configs import platforms
+from pylol.run_configs import lib
+
+"""
+flags.DEFINE_string("lol_run_config", None,
+                    "Which run_config to use to spawn the binary.")
+FLAGS = flags.FLAGS
+"""
+
+def get():
+    """Get the config chosen by flags."""
+    configs = {c.name(): c
+        for c in lib.RunConfig.all_subclasses() if c.priority()}
+    
+    if not configs:
+        raise lol_process.LoLLaunchError("No valid run_configs found.")
+    
+    # if FLAGS.lol_run_config is None:
+    return max(configs.values(), key=lambda c: c.priority())
+
+    """
+    try:
+        return configs[FLAGS.lol_run_config]
+    except KeyError:
+        lol_process.LoLLaunchError(
+        "Invalid run_config. Valid configs are: %s" % (
+            ", ".join(sorted(configs.keys()))))
+    """

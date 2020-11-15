@@ -23,17 +23,22 @@
 various platforms"""
 
 import os
+import platform
 
 from pylol.lib import lol_process
 from pylol.run_configs import lib
 
-class LocalBase():
+class LocalBase(lib.RunConfig):
     """Base run config for installs."""
 
-    def __init__(self, exec_dir, exec_name):
+    def __init__(self, exec_dir, exec_name, cwd=None, env=None):
         exec_dir = os.path.expanduser(exec_dir)
         self.exec_dir = exec_dir
         self.exec_name = exec_name
+        cwd = cwd and os.path.join(exec_dir, cwd)
+        super(LocalBase, self).__init__(
+            replay_dir=os.path.join(exec_dir, "Replays"), cwd=cwd, env=env
+        )
         
     def start(self):
         """Launch the game."""
@@ -41,11 +46,11 @@ class LocalBase():
             raise lol_process.LoLLaunchError(
                 "Failed to run League of Legends at '%s" % self.exec_dir)
         
-        if not os.path.exists(self.exec_dir):
-            raise lol_process.LoLLaunchError("No LoL binary found at: %s" % self.exec_path)
-        
-        exec_path = self.exec_dir + self.exec_name
+        exec_path = os.path.expanduser(self.exec_dir) + self.exec_name
 
+        if not os.path.exists(exec_path):
+            raise lol_process.LoLLaunchError("No league binary found at: %s" % exec_path)
+        
         return lol_process.LoLProcess(self, exec_path=exec_path)
 
 class Windows(LocalBase):
@@ -54,8 +59,18 @@ class Windows(LocalBase):
     def __init__(self, exec_path):
         super(Windows, self).__init__(exec_path, "League of Legends.exe")
 
+    @classmethod
+    def priority(cls):
+        if platform.system() == "Windows":
+            return 1
+
 class Linux(LocalBase):
     """Config to run on Linux."""
     
     def __init__(self, exec_path):
         super(Linux, self).__init__(exec_path, "./League of Legends.exe")
+    
+    @classmethod
+    def priority(cls):
+        if platform.system() == "Linux":
+            return 1

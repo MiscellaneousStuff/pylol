@@ -25,6 +25,13 @@ import redis
 import json
 import subprocess
 
+import collections
+
+class Agent(collections.namedtuple("Agent", ("champion", "team"))):
+    """Define an Agent. Each agent has a champion and which team it belongs to"""
+    def __new__(cls, champion, team):
+        return super(Agent, cls).__new__(cls, (champion, team))
+
 class LoLEnv():
     def __init__(self, settings, host="localhost", port=6379, db=0, timeout=1):
         self.pool = redis.ConnectionPool(host=host, port=port, db=db)

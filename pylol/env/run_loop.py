@@ -26,6 +26,15 @@ import os
 import sys
 
 def run_loop(agents, env, max_episodes=0):
+    # Tell GameServer to start sending observations
+    env.start_observing()
+
+    # First 2 actions to game server are to randomly spawn our agents
+    env.players_reset()
+    for agent in agents:
+        agent.reset()
+
+    # Loop variables
     total_episodes = 0
     start_time = time.time()
     steps = 0

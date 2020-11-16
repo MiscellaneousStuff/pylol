@@ -265,7 +265,7 @@ class ScriptedAgent:
             y = randint(-4, 4)
             action = self.env.player_move(self.id, x, y)
         else:
-            spell = randint(0, 2)
+            spell = 0
             action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
 
         # Record (State, Action)

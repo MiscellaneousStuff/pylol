@@ -59,17 +59,19 @@ class LoLProcess(object):
         self.controller = None
         self.check_exists(exec_path)
         self.host = host or "localhost"
-        self.port = port or "8394"
+        self.port = port or "5119"
 
         args = [
             exec_path,
             "--host", self.host,
-            "--port", self.port
+            "--port", self.port,
+            "--human_count", "1",
+            "--agent_count", "1"
         ]
 
         try:
             self.controller = remote_controller.RemoteController(
-                None, None, None, timeout_seconds=timeout_seconds)
+                None, None, None, timeout_seconds=timeout_seconds, proc=self)
             self._proc = self.launch(run_config, args, **kwargs)
         except:
             self.close()
@@ -79,7 +81,7 @@ class LoLProcess(object):
         """Launch the process and return the process object."""
         del kwargs
         try:
-            print("RUN CONFIG CWD: ", run_config.cwd)
+            print("LoLProcess Args:", args)
             return subprocess.Popen(args, cwd=run_config.cwd, env=run_config.env)
         except OSError:
             logging.execution("Failed to launch")

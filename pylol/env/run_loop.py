@@ -33,56 +33,6 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
     env = env._controllers[0]
     env.connect()
 
-    # Execute GameServer
-    """
-    start_time = time.perf_counter()
-    client_load = None
-    # run_config = run_configs.get()
-    # GameServerConsole = lol_process.LoLProcess(run_config, "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/")
-    """
-
-    """
-    GameServerConsoleArgs = [
-        "./GameServerConsole",
-        "--human_count",
-        "1", # str(args.human_count),
-        "--agent_count",
-        "1", # str(args.agent_count)
-    ]
-    GameServerConsole = subprocess.Popen(GameServerConsoleArgs, stdout=subprocess.PIPE, cwd="/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/")
-    """
-
-    """ # Start Client by waiting for "Game is ready" in GameServerConsole output
-    # GameServerConsole = lol_process.LoLProcess(run_config, "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/")
-    LeagueOfLegendsClient = None
-    while True:
-        output = str(GameServerConsole.stdout.readline())
-        # print(output)
-        if "Game is ready" in output:
-            if True: # if args.human_count > 0:
-                # Automatically start the client when ready
-                client_load = time.perf_counter()
-                LeagueOfLegendsClientArgs = [
-                    "./League of Legends.exe",
-                    "8394",
-                    "../../../../../../LoLLauncher.exe",
-                    "",
-                    "127.0.0.1 5119 17BLOhi6KZsTtldTsizvHg== 1"
-                ]
-                LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, stdout=subprocess.DEVNULL, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
-            break
-        else:
-            if time.perf_counter() - start_time >= 10:
-                print("GameServer timed out")
-                # os.system("killall -9 GameServerConsole")
-                GameServerConsole.kill()
-                LeagueOfLegendsClient.kill()
-                sys.exit()
-    
-    while time.perf_counter() < client_load + 20.0:
-        pass
-    """
-
     # Loop variables
     total_episodes = 0
     start_time = time.time()
@@ -108,9 +58,9 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
             for agent in agents:
                 obs = env.observe()
                 if obs == None:
-                    print("KILLING PROCESS: ")
-                    os.system("killall -9 GameServerConsole")
-                    os.system("killall -9 redis-server")
+                    #print("KILLING PROCESS: ")
+                    #os.system("killall -9 GameServerConsole")
+                    #os.system("killall -9 redis-server")
                     sys.exit()
                 obs_list.append(obs)
             
@@ -156,7 +106,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
         elapsed_time = time.time() - start_time
         print("Took %.3f seconds for %s steps: %.3f fps" % (
             elapsed_time, steps, steps / elapsed_time))
-    
+
 """
 def run_loop(agents, env, max_episodes=0):
     # A run loop for agent/environment interaction

@@ -52,7 +52,7 @@ class RemoteController(object):
     before returning.
     """
 
-    def __init__(self, settings, host, port, proc=None, timeout_seconds=1):
+    def __init__(self, settings, host, port, timeout_seconds, proc=None):
         timeout_seconds = timeout_seconds # or FLAGS.lol_timeout
         host = host or "localhost"
         port = port or 6379
@@ -64,6 +64,7 @@ class RemoteController(object):
         self.running = True
         self.settings = settings
         self.last_obs = None
+        self._client = None
         try:
             self._proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
         except SubprocessError as e:
@@ -77,25 +78,31 @@ class RemoteController(object):
         """Waits until clients can join the GameServer then waits until agents can connect."""
 
         # Wait until clients can join
-        json_txt = self.r.brpop("observation", 20) # Shouldn't be longer than this, will check though
+        json_txt = self.r.brpop("observation", self.timeout) # Shouldn't be longer than this, will check though
         if json_txt == None:
+            print("`clients_join` == NONE")
             raise ConnectionError("Couldn't get `clients_join` message from GameServer")
         else:
             command = json.loads(json_txt[1].decode("utf-8"))
             if command == "clients_join":
-                print("Start client and join game")
+                print("`clients_join` == START CLIENT:", command)
+                self._client = start_client()
             else:
+                print("`clients_join` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `clients_join` message from GameServer")
         
         # Wait until agents can connect (dependend on how long client takes to load, timing issue...)
-        json_txt = self.r.brpop("observation", 20)
+        json_txt = self.r.brpop("observation", 60)
         if json_txt == None:
+            print("`game_started` == NONE")
             raise ConnectionError("Couldn't get `game_started` message from GameServer")
         else:
             command = json.loads(json_txt[1].decode("utf-8"))
             if command == "game_started":
+                print("`game_started` == START CLIENT:", command)
                 print("Running AI agents")
             else:
+                print("`game_started` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `game_started` message from GameServer")
 
     # Check if someone died for this observation
@@ -200,3 +207,15 @@ class RemoteController(object):
         }
         self.r.lpush("command", "change_champion")
         self.r.lpush("command", json.dumps(command))
+
+def start_client():
+    LeagueOfLegendsClient = None
+    LeagueOfLegendsClientArgs = [
+        "./League of Legends.exe",
+        "8394",
+        "../../../../../../LoLLauncher.exe",
+        "",
+        "127.0.0.1 5119 17BLOhi6KZsTtldTsizvHg== 1"
+    ]
+    LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, stdout=subprocess.PIPE, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
+    return LeagueOfLegendsClient

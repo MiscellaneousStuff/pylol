@@ -27,7 +27,8 @@ import collections
 import enum
 import six
 
-class TimeStep(collections.namedtuple('TimeStep', ['reward', 'discount', 'observation'])):
+class TimeStep(collections.namedtuple(
+        'TimeStep', ['step_type', 'reward', 'discount', 'observation'])):
     """Returned with every call to `step` and `reset` on an environment.
 
     A `TimeStep` contains the data emitted by an environment at each stop of
@@ -87,6 +88,18 @@ class Base(object):
         If the environment returned a `TimeStep` with `StepType.LAST` at the
         previous step, this call to `step` will start a new sequence and `action`
         will be ignored.
+
+        Args:
+            action: A NumPy array, or a dict, list or tuple of arrays corresponding to
+                `action_spec()`.
+        
+        Returns:
+            A `TimeStep` namedtuple containing:
+                step_type: A `StepType` value.
+                reward: Reward at this timestep.
+                discount: A discount in the range [0, 1].
+                observation: A NumPy array, or a dict, list or tuple of arrays
+                    corresponding to `observation_spec()`.
         """
 
     @abc.abstractmethod

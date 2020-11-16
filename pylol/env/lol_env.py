@@ -31,7 +31,7 @@ import enum
 from pylol import maps
 from pylol import run_configs
 from pylol.env import environment
-from pylol.lib import actions as actions_lib
+from pylol.lib import features
 
 class Team(enum.IntEnum):
     BLUE = 0
@@ -89,7 +89,7 @@ class LoLEnv(environment.Base):
         self.total_steps = 0
         self.episode_steps = 0
         self.episode_count = 0
-        self.features = []
+        self._features = [features.features_from_game_info()]
         self.obs = [None] * self.num_agents
         self.state = environment.StepType.LAST
         logging.info("Environment is ready.")
@@ -110,11 +110,11 @@ class LoLEnv(environment.Base):
     
     def observation_spec(self):
         """Look at Features for full spec."""
-        return tuple(f.observation_spec() for f in self.features)
+        return tuple(f.observation_spec() for f in self._features)
     
     def action_spec(self):
         """Look at Features for full spec."""
-        return tuple(f.action_spec() for f in self.features)
+        return tuple(f.action_spec() for f in self._features)
     
     def step(self):
         """Apply actions, step the world forward, and return observations.

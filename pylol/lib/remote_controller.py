@@ -61,9 +61,8 @@ class RemoteController(object):
         self.pool = redis.ConnectionPool(host=host, port=port, db=0)
         self.r = redis.Redis(connection_pool=self.pool)
         self.timeout = timeout_seconds
-        self.running = True
         self.settings = settings
-        self.last_obs = None
+        self._last_obs = None
         self._client = None
         try:
             self._proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
@@ -73,6 +72,7 @@ class RemoteController(object):
     def close(self):
         """Kill the redis process when the controller is done."""
         self._proc.kill()
+        # self._client.kill() doesn't kill the associated league client
     
     def connect(self):
         """Waits until clients can join the GameServer then waits until agents can connect."""
@@ -115,26 +115,22 @@ class RemoteController(object):
 
     def observe(self):
         """Get a current observation."""
-        # obs = Get Observation
-        # self.last_obs = obs
 
         # Start observing if we haven't already.
-        if self.last_obs == None:
+        if self._last_obs == None:
             self.r.delete("action") # Reset action pipe
             self.r.delete("observation") # Reset observation pipe
-            self.r.lpush("command", "start_observing") # Tell the server to start
-                                                    # ... accepting actions and observations
+            self.r.lpush("command", "start_observing") # Start observing
 
         # Get the observation
         json_txt = self.r.brpop("observation", self.timeout)
         if json_txt == None:
-            self.running = False
             print("Error: Observation timed out")
             return None
         else:
-            last_obs = json.loads(json_txt[1].decode("utf-8"))
-            self.last_obs = last_obs
-            return last_obs
+            obs = json.loads(json_txt[1].decode("utf-8"))
+            self._last_obs = obs
+            return obs
     
     def quit(self):
         """Shut down the redis process."""
@@ -213,9 +209,9 @@ def start_client():
     LeagueOfLegendsClientArgs = [
         "./League of Legends.exe",
         "8394",
-        "../../../../../../LoLLauncher.exe",
+        "",
         "",
         "127.0.0.1 5119 17BLOhi6KZsTtldTsizvHg== 1"
     ]
-    LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, stdout=subprocess.PIPE, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
+    LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
     return LeagueOfLegendsClient

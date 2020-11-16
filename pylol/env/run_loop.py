@@ -30,8 +30,8 @@ from pylol import run_configs
 
 def run_loop(agents, env, max_steps=0, max_episodes=0):
     # Re-define env for now
-    env = env._controllers[0]
-    env.connect()
+    controller = env._controllers[0]
+    controller.connect()
 
     # Loop variables
     total_episodes = 0
@@ -40,15 +40,14 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
 
     # This won't be needed in the future
     for agent in agents:
-        agent.env = env
+        agent.env = controller
 
     # Observation and action spec
-    """
     observation_spec = env.observation_spec()
     action_spec = env.action_spec()
+    print("OBS, ACT SPECS:", observation_spec, action_spec)
     for agent, obs_spec, act_spec in zip(agents, observation_spec, action_spec):
         agent.setup(obs_spec, act_spec)
-    """
 
     try:
         while not max_episodes or total_episodes < max_episodes:
@@ -56,17 +55,14 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
             # If none are found, quit
             obs_list = []
             for agent in agents:
-                obs = env.observe()
+                obs = controller.observe()
                 if obs == None:
-                    #print("KILLING PROCESS: ")
-                    #os.system("killall -9 GameServerConsole")
-                    #os.system("killall -9 redis-server")
                     sys.exit()
                 obs_list.append(obs)
             
             # Do initialization after observation (because observation initialization embedded within every observation)
             if steps == 0:
-                env.players_reset()
+                controller.players_reset()
                 for agent in agents:
                     agent.reset()
 
@@ -83,14 +79,14 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
                 return
             
             # If someone has died, the episode has finished
-            if env.someone_died(obs_list[0]) and len(agents[0].state_action_buffer) > 4:
+            if controller.someone_died(obs_list[0]) and len(agents[0].state_action_buffer) > 4:
 
                 # Update agents
                 for agent in agents:
                     agent.store_episode()
                 
                 # Reset both players by reviving them
-                env.players_reset()
+                controller.players_reset()
 
                 # Re-teleport them
                 for agent in agents:

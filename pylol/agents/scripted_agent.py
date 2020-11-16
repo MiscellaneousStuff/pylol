@@ -22,6 +22,7 @@
 """Hardcoded scripted agent."""
 
 from random import randint
+from pylol.agents import base_agent
 
 # Rewards
 REWARD_WEIGHT = {
@@ -33,7 +34,7 @@ REWARD_WEIGHT = {
 }
 
 # Agent
-class ScriptedAgent:
+class ScriptedAgent(base_agent.BaseAgent):
     def __init__(self, name, id, champ, team, env):
         # Game data
         self.name = name
@@ -52,6 +53,8 @@ class ScriptedAgent:
         self.experience = [] # (state, action, reward) / episode episode
         self.performance = [] # sum of experience rewards / episode
         self.mean_performance = [] # mean of experience rewards / episode
+
+        super(ScriptedAgent, self).__init__()
 
     # returns rewards for current episode (regardless if they've been calculated or not)
     def get_current_rewards(self):
@@ -130,7 +133,7 @@ class ScriptedAgent:
 
     # takes an observation from the game server, asks the game server to perform an action, records the (state, action) combo
     def act(self, observation, step):
-        print("Player: " + self.team + " Act")
+        # print("Player: " + self.team + " Act")
         # print("Champ Units:", observation["champ_units"])
 
         # Record State and Action
@@ -160,7 +163,7 @@ class ScriptedAgent:
         closest_enemy_unit_y = closest_enemy_unit["position"]["Y"]
         me_unit_x = me_unit["position"]["X"]
         me_unit_y = me_unit["position"]["Y"]
-        print("Closest Enemy Position:", closest_enemy_unit_x, closest_enemy_unit_y)
+        # print("Closest Enemy Position:", closest_enemy_unit_x, closest_enemy_unit_y)
         # print("ENEMY ID:", self.team, enemy_id)
 
         # If 

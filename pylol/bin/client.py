@@ -28,7 +28,7 @@ from pylol.env.lol_env import LoLEnvSettingsPlayer
 
 if __name__ == "__main__":
     with lol_env.LoLEnv(
-        map_name="Old Summoners Rift",
+        map_name="New Summoners Rift",
         players=[lol_env.Agent(champion="Ezreal", team="BLUE"),
                  lol_env.Agent(champion="Ezreal", team="PURPLE")]) as env:
         agents = [
@@ -37,5 +37,5 @@ if __name__ == "__main__":
             scripted_agent.ScriptedAgent(name="2", id=2, champ="Ezreal",
                 team="PURPLE", env=env._controllers[0])
         ]
-        episodes = 2
+        episodes = 1
         run_loop.run_loop(agents, env, max_episodes=episodes)

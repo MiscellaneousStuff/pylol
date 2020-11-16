@@ -45,8 +45,10 @@ class Features(object):
             ValueError: if agent_interface_format isn't specified.
         """
 
-        if not agent_interface_format:
-            raise ValueError("Please specify agent_interface_format")
+        #if not agent_interface_format:
+        #    raise ValueError("Please specify agent_interface_format")
+
+        pass
     
     def observation_spec(self):
         """The observation spec for the League of Legends v4.20 environment.
@@ -56,17 +58,34 @@ class Features(object):
         """
 
         obs_spec = named_array.NamedDict({
-            "game_time": (0,),
-            "me": (0,),
-            "enemy": (0,)
+            "game_time": (1,)
         })
+
+        return obs_spec
+
     def action_spec(self):
         """The action space pretty complicated and fills the ValidFunctions."""
-        return self.valid_functions
-    
+
+        act_spec = named_array.NamedDict({
+            "empty": (1,)
+        })
+
+        return act_spec
+
+    """
     def available_actions(self, obs):
-        """Return the list of available action ids."""
+        # Return the list of available action ids. #
         available_actions = set()
         for i, func in six.iteritems(actions.FUNCTIONS_AVAILABLE):
             if func.avail_fn(obs):
                 available_actions.add(i)
+    """
+    
+def features_from_game_info():
+    """Construct a Features object using data extracted from game info.
+
+    Returns:
+        A features object.
+    """
+
+    return Features()

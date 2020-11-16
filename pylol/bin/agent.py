@@ -34,7 +34,6 @@ from pylol.env import lol_env
 max_agent_steps = 1000000
 max_episodes = 1000000
 cur_map = "Old Summoners Rift"
-parallel = 
 
 def run_thread(agent_classes, players, map_name):
     """Run on thread worth of the environment with agents."""

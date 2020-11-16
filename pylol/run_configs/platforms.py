@@ -40,37 +40,45 @@ class LocalBase(lib.RunConfig):
             replay_dir=os.path.join(exec_dir, "Replays"), cwd=cwd, env=env
         )
         
-    def start(self):
+    def start(self, **kwargs):
         """Launch the game."""
         if not os.path.isdir(self.exec_dir):
             raise lol_process.LoLLaunchError(
-                "Failed to run League of Legends at '%s" % self.exec_dir)
+                "Failed to run  GameServer at '%s" % self.exec_dir)
         
         exec_path = os.path.expanduser(self.exec_dir) + self.exec_name
 
         if not os.path.exists(exec_path):
-            raise lol_process.LoLLaunchError("No league binary found at: %s" % exec_path)
+            raise lol_process.LoLLaunchError("No GameServer binary found at: %s" % exec_path)
         
-        return lol_process.LoLProcess(self, exec_path=exec_path)
+        return lol_process.LoLProcess(self, exec_path=exec_path, **kwargs)
 
+# """Run on windows.""" <- Put this above Windows.__init__ when finished debugging issue
+"""
 class Windows(LocalBase):
-    """Run on windows."""
+    #def __init__(self, exec_path):
+    #    super(Windows, self).__init__(exec_path, "GameServerConsole.exe")
 
-    def __init__(self, exec_path):
-        super(Windows, self).__init__(exec_path, "GameServerConsole.exe")
+    def __init__(self):
+        super(Windows, self).__init__("GameServerConsole.exe")
 
     @classmethod
     def priority(cls):
         if platform.system() == "Windows":
             return 1
+"""
 
 class Linux(LocalBase):
     """Config to run on Linux."""
-    # Put `Config to run on Linux.` message here when uncommenting
-    def __init__(self, exec_path):
-        super(Linux, self).__init__(exec_path, "./GameServerConsole")
-    
+    def __init__(self):
+        exec_path = "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/"
+        super(Linux, self).__init__(exec_path, "./GameServerConsole", cwd=exec_path)
+        
     @classmethod
     def priority(cls):
         if platform.system() == "Linux":
             return 1
+    
+    def start(self, **kwargs):
+        extra_args = kwargs.pop("extra_args", [])
+        return super(Linux, self).start(**kwargs)

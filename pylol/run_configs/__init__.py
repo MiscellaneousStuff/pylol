@@ -43,7 +43,7 @@ def get():
         raise lol_process.LoLLaunchError("No valid run_configs found.")
     
     #if FLAGS.lol_run_config is None:
-    return max(configs.values(), key=lambda c: c.priority())
+    return max(configs.values(), key=lambda c: c.priority())()
 
     """
     try:

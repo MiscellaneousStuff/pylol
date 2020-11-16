@@ -41,7 +41,7 @@ class LoLProcess(object):
     and where to find it.
     """
 
-    def __init__(self, run_config, exec_path, timeout_seconds=10, full_screen=False,
+    def __init__(self, run_config, exec_path, timeout_seconds=20, full_screen=False,
                  host=None, port=None, window_size=(640, 480), **kwargs):
         """Launch the League of Legends process.
 
@@ -54,8 +54,8 @@ class LoLProcess(object):
             timeout_seconds: Timeout for the GameServer to start before we give up.
             window_size: Screen size if not full screen.
         """
-        
-        self.proc = None
+
+        self._proc = None
         self.controller = None
         self.check_exists(exec_path)
         self.host = host or "localhost"
@@ -68,9 +68,9 @@ class LoLProcess(object):
         ]
 
         try:
-            self.proc = self.launch(run_config, args, **kwargs)
             self.controller = remote_controller.RemoteController(
-                None, None, self, timeout_seconds=timeout_seconds)
+                None, None, None, timeout_seconds=timeout_seconds)
+            self._proc = self.launch(run_config, args, **kwargs)
         except:
             self.close()
             raise
@@ -79,6 +79,7 @@ class LoLProcess(object):
         """Launch the process and return the process object."""
         del kwargs
         try:
+            print("RUN CONFIG CWD: ", run_config.cwd)
             return subprocess.Popen(args, cwd=run_config.cwd, env=run_config.env)
         except OSError:
             logging.execution("Failed to launch")
@@ -93,10 +94,10 @@ class LoLProcess(object):
     
     def shutdown(self):
         """Terminate the GameServer subprocess."""
-        if self.proc:
-            ret = shutdown_proc(self.proc, 3)
+        if self._proc:
+            ret = shutdown_proc(self._proc, 3)
             logging.info("Shutdown with return code: %s", ret)
-            self.proc = None
+            self._proc = None
     
     def check_exists(self, exec_path):
         if not os.path.isfile(exec_path):

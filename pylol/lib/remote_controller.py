@@ -54,23 +54,50 @@ class RemoteController(object):
 
     def __init__(self, settings, host, port, proc=None, timeout_seconds=1):
         timeout_seconds = timeout_seconds # or FLAGS.lol_timeout
+        host = host or "localhost"
+        port = port or 6379
+        self.host = host
+        self.port = port
         self.pool = redis.ConnectionPool(host=host, port=port, db=0)
         self.r = redis.Redis(connection_pool=self.pool)
         self.timeout = timeout_seconds
         self.running = True
         self.settings = settings
-        self.host = host or "localhost"
-        self.port = port or 6379
         self.last_obs = None
         try:
-            self.proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
+            self._proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
         except SubprocessError as e:
             print("Could not open redis. Error message: '%s'" % e)
     
     def close(self):
         """Kill the redis process when the controller is done."""
-        self.proc.kill()
+        self._proc.kill()
     
+    def connect(self):
+        """Waits until clients can join the GameServer then waits until agents can connect."""
+
+        # Wait until clients can join
+        json_txt = self.r.brpop("observation", 20) # Shouldn't be longer than this, will check though
+        if json_txt == None:
+            raise ConnectionError("Couldn't get `clients_join` message from GameServer")
+        else:
+            command = json.loads(json_txt[1].decode("utf-8"))
+            if command == "clients_join":
+                print("Start client and join game")
+            else:
+                raise ConnectionError("Couldn't get `clients_join` message from GameServer")
+        
+        # Wait until agents can connect (dependend on how long client takes to load, timing issue...)
+        json_txt = self.r.brpop("observation", 20)
+        if json_txt == None:
+            raise ConnectionError("Couldn't get `game_started` message from GameServer")
+        else:
+            command = json.loads(json_txt[1].decode("utf-8"))
+            if command == "game_started":
+                print("Running AI agents")
+            else:
+                raise ConnectionError("Couldn't get `game_started` message from GameServer")
+
     # Check if someone died for this observation
     def someone_died(self, observation):
         champ_units = observation["champ_units"]
@@ -101,6 +128,11 @@ class RemoteController(object):
             last_obs = json.loads(json_txt[1].decode("utf-8"))
             self.last_obs = last_obs
             return last_obs
+    
+    def quit(self):
+        """Shut down the redis process."""
+        self.r = None
+        self._proc.kill()
     
     def player_attack(self, player_id, target_player_id):
         action = {

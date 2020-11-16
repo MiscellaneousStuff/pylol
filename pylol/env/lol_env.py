@@ -34,14 +34,14 @@ from pylol.env import environment
 from pylol.lib import actions as actions_lib
 
 class Team(enum.IntEnum):
-    blue = 0
-    purple = 1
-    neutral = 2
+    BLUE = 0
+    PURPLE = 1
+    NEUTRAL = 2
 
-class Agent(collections.namedtuple("Agent", ("champion", "team"))):
+class Agent(collections.namedtuple("Agent", ["champion", "team"])):
     """Define an Agent. Each agent has a champion and which team it belongs to"""
     def __new__(cls, champion, team):
-        return super(Agent, cls).__new__(cls, (champion, team))
+        return super(Agent, cls).__new__(cls, champion, team)
 
 class LoLEnv(environment.Base):
     """A League of Legends v4.20 environment.
@@ -77,37 +77,36 @@ class LoLEnv(environment.Base):
         if not map_name:
             raise ValueError("Missing a map name.")
         
-        self.map_name = map_name
-        self.run_config = run_configs.get()
-        self.game_info = None
+        self._map_name = map_name
+        self._run_config = run_configs.get()
+        self._game_info = None
+        
+        self._launch_game()
 
-        self.launch_game()
+        self._finalize()
 
-        self.finalize()
-
-    def finalize(self):
+    def _finalize(self):
         self.total_steps = 0
         self.episode_steps = 0
         self.episode_count = 0
+        self.features = []
         self.obs = [None] * self.num_agents
-        self.state = environ,ent.StepType.LAST
+        self.state = environment.StepType.LAST
         logging.info("Environment is ready.")
 
-    def launch_game(self):
+    def _launch_game(self):
         """Actually launch the GameServer."""
-        self.lol_procs = [
-            self.run_config.start()
-        ]
-        self.controllers = [p.controller for p in self.lol_procs]
+        self._lol_procs = [self._run_config.start()]
+        self._controllers = [p.controller for p in self._lol_procs]
     
     @property
     def map_name(self):
         """Get the current map name."""
-        return self.map_name
+        return self._map_name
     
     @property
     def game_info(self):
-        return self.game_info
+        return self._game_info
     
     def observation_spec(self):
         """Look at Features for full spec."""
@@ -132,6 +131,32 @@ class LoLEnv(environment.Base):
 
         if self.state == environment.StepType.LAST:
             return self.reset()
+    
+    def close(self):
+        logging.info("Environment Close")
+        if hasattr(self, "_controllers") and self._controllers:
+            for c in self._controllers:
+                c.quit()
+            self._controllers = None
+        if hasattr(self, "_lol_procs") and self._lol_procs:
+            for p in self._lol_procs:
+                p.close()
+            self.lol_procs = None
+        self._game_info = None
+    
+    def observe(self):
+        self.episode_steps += 1
+        self.total_steps += 1
+
+    def reset(self):
+        """Starts a new episode."""
+        self.episode_steps = 0
+        if self.episode_count:
+            pass # self.restart() # "To support fast restart of mini-games"
+        
+        self.episode_count += 1
+        self.state = environment.StepType.FIRST
+        return self.observe()
 
 
 MAP = {
@@ -221,7 +246,8 @@ def LoLEnvSettingsGameInfo(
         "CHEATS_ENABLED":           cheats_enabled,
         "COOLDOWNS_ENABLED":        cooldowns_enabled,
         "MINION_SPAWNS_ENABLED":    minion_spawns_enabled,
-        "CONTENT_PATH": "../../../../Content",
+        # "CONTENT_PATH": "../../../../Content",
+        "CONTENT_PATH": "/mnt/c/LeagueSandbox/LeagueSandbox-RL-Learning/Content",
         "IS_DAMAGE_TEXT_GLOBAL":    is_damage_text_global
     }
 

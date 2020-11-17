@@ -166,13 +166,6 @@ class ScriptedAgent(base_agent.BaseAgent):
         # print("Closest Enemy Position:", closest_enemy_unit_x, closest_enemy_unit_y)
         # print("ENEMY ID:", self.team, enemy_id)
 
-        # If 
-        """
-        enemy_id = (self.id + AGENT_COUNT // 2) % AGENT_COUNT
-        if enemy_id == 0:
-            enemy_id = AGENT_COUNT
-        """
-
         """
         # Act
         action_choice = randint(0, 5)
@@ -262,14 +255,40 @@ class ScriptedAgent(base_agent.BaseAgent):
         # action = lolenv.player_spell(self.id, enemy_id, 0)
         # action = lolenv.player_attack(self.id, 1)
         
+        
         # Move and Attack
-        if step % 2 == 0:
-            x = randint(-4, 4)
-            y = randint(-4, 4)
-            action = self.env.player_move(self.id, x, y)
+        if len(self.state_action_buffer) > 4:
+            if self.state_action_buffer[-1][1]["type"] == "move" and self.state_action_buffer[-2][1]["type"] == "move":
+                choice = randint(0, 2)
+                if choice == 0:
+                    x = randint(-4, 4)
+                    y = randint(-4, 4)
+                    action = self.env.player_move(self.id, x, y)
+                else:
+                    spell = 0
+                    action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+            elif self.state_action_buffer[-1][1]["type"] == "move":
+                x = randint(-4, 4)
+                y = randint(-4, 4)
+                action = self.env.player_move(self.id, x, y)
+            else:
+                choice = randint(0, 2)
+                if choice == 0:
+                    x = randint(-4, 4)
+                    y = randint(-4, 4)
+                    action = self.env.player_move(self.id, x, y)
+                else:
+                    spell = 0
+                    action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
         else:
-            spell = 0
-            action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+            choice = randint(0, 2)
+            if choice == 0:
+                x = randint(-4, 4)
+                y = randint(-4, 4)
+                action = self.env.player_move(self.id, x, y)
+            else:
+                spell = 0
+                action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
 
         # Record (State, Action)
         self.state_action_buffer.append([state, action, 0])

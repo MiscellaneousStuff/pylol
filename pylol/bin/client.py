@@ -22,6 +22,7 @@
 """Test run the client."""
 
 from pylol.agents import scripted_agent
+from pylol.agents import base_agent, random_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.env.lol_env import LoLEnvSettingsPlayer
@@ -29,13 +30,17 @@ from pylol.env.lol_env import LoLEnvSettingsPlayer
 if __name__ == "__main__":
     with lol_env.LoLEnv(
         map_name="New Summoners Rift",
-        players=[lol_env.Agent(champion="Ezreal", team="BLUE"),
-                 lol_env.Agent(champion="Ezreal", team="PURPLE")]) as env:
-        agents = [
+        players=[lol_env.Agent(champion="Ezreal", team="BLUE")]) as env:
+        scripted_agents = [
             scripted_agent.ScriptedAgent(name="1", id=1, champ="Ezreal",
-                team="BLUE", env=env._controllers[0]),
-            scripted_agent.ScriptedAgent(name="2", id=2, champ="Ezreal",
-                team="PURPLE", env=env._controllers[0])
+                team="BLUE", env=env._controllers[0])
+        ]
+        random_agents = [
+            random_agent.RandomAgent()
+        ]
+        base_agents = [
+            base_agent.BaseAgent()
         ]
         episodes = 1
-        run_loop.run_loop(agents, env, max_episodes=episodes)
+        steps = 100
+        run_loop.run_loop(random_agents, env, max_steps=steps)

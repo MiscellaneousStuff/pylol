@@ -31,12 +31,14 @@ def main(unused_argv):
     """Print the valid actions."""
     feats = features.Features()
     action_spec = feats.action_spec()
+    flattened = 0
     for func in action_spec.functions:
         count += 1
         act_flat += 1
         for arg in func.args:
             for size in arg.sizes:
                 act_flat *= size
+        flattened += act_flat
         print(func.str(True))
     print("Total base actions:", count)
     print("Total possible actions (flattened):", flattened)

@@ -43,6 +43,11 @@ class Agent(collections.namedtuple("Agent", ["champion", "team"])):
     def __new__(cls, champion, team):
         return super(Agent, cls).__new__(cls, champion, team)
 
+# This is temporary, get rid of it ASAP
+class CustomObs():
+    def __init__(self, obs):
+        self.observation = obs
+
 class LoLEnv(environment.Base):
     """A League of Legends v4.20 environment.
 
@@ -71,7 +76,7 @@ class LoLEnv(environment.Base):
                     "Expected players to be of type Agent. Got: %s." % p)
         
         num_players = len(players)
-        self.num_agents = sum(1 for p in players if isinstance(p, Agent))
+        self._num_agents = sum(1 for p in players if isinstance(p, Agent))
         self.players = players
 
         if not map_name:
@@ -86,12 +91,13 @@ class LoLEnv(environment.Base):
         self._finalize()
 
     def _finalize(self):
-        self.total_steps = 0
-        self.episode_steps = 0
-        self.episode_count = 0
+        self._total_steps = 0
+        self._episode_steps = 0
+        self._episode_count = 0
         self._features = [features.features_from_game_info()]
-        self.obs = [None] * self.num_agents
-        self.state = environment.StepType.LAST
+        self._obs = [None] * self._num_agents
+        self._agent_obs = [None] * self._num_agents
+        self._state = environment.StepType.LAST
         logging.info("Environment is ready.")
 
     def _launch_game(self):
@@ -116,7 +122,10 @@ class LoLEnv(environment.Base):
         """Look at Features for full spec."""
         return tuple(f.action_spec() for f in self._features)
     
-    def step(self):
+    def _step(self):
+        return self._observe()
+
+    def step(self, actions):
         """Apply actions, step the world forward, and return observations.
 
         Args:
@@ -129,8 +138,14 @@ class LoLEnv(environment.Base):
             A tuple of TimeStep namedtuples, one per agent.
         """
 
-        if self.state == environment.StepType.LAST:
+        if self._state == environment.StepType.LAST:
             return self.reset()
+        
+        
+
+        self._state = environment.StepType.MID
+
+        return self._step()
     
     def close(self):
         logging.info("Environment Close")
@@ -144,20 +159,74 @@ class LoLEnv(environment.Base):
             self.lol_procs = None
         self._game_info = None
     
-    def observe(self):
-        self.episode_steps += 1
-        self.total_steps += 1
+    def _get_observations(self):
+        """
+        def __observe(c, f):
+            obs = c.observe()
+            obs = tuple(environment.TimeStep(
+                step_type=self._state,
+                reward=[0]*self._num_agents,
+                discount=1.0,
+                observation=obs
+            ))
+            obs = CustomObs(obs)
+            agent_obs = f.transform_obs(obs)
+            return obs, agent_obs
+
+        #print("lol_env.tuple:", __observe(self._controllers, self._features))
+        #self._obs, self._agent_obs = __observe(self._controllers[0], self._features)
+        res = []
+        for c, f in zip(self._controllers, self._features):
+            print("c, f:", c, f)
+            res.append(tuple(c, f))
+        print("_get_observations.res:", res)
+        """
+        obs = self._controllers[0].observe()
+        print("_get_observations.obs:", obs)
+        agent_obs = self._features[0].transform_obs(obs)
+        self._obs, self._agent_obs = [obs], [agent_obs]
+
+    def _observe(self):
+        self._get_observations()
+        
+        # NOTE: This is obviously temp for debugging, actually retrieve or calculate the reward
+        #       ... later on
+        reward = [0] * self._num_agents
+
+        print("lol_env._observe.self._agent_obs :=", self._agent_obs)
+        ret_val = tuple(environment.TimeStep(
+            step_type=self._state,
+            reward=r,
+            discount=1,
+            observation=o
+        ) for r, o in zip(reward, self._agent_obs))
+
+        print("RET VAL:", ret_val)
+        #print("RET VAL.observation:", ret_val[0].observation)
+
+        self._episode_steps += 1
+        self._total_steps += 1
+
+        return ret_val
+
+    def _restart(self):
+        # Restart the GameServer controllers
+        for c in self._controllers:
+            c.restart()
 
     def reset(self):
         """Starts a new episode."""
-        self.episode_steps = 0
-        if self.episode_count:
-            pass # self.restart() # "To support fast restart of mini-games"
+        self._episode_steps = 0
+        if self._episode_count:
+            # No need to restart for the first episode
+            self._restart()
         
-        self.episode_count += 1
-        self.state = environment.StepType.FIRST
-        return self.observe()
+        self._episode_count += 1
 
+        logging.info("Starting episode %s: on %s" % (self._episode_count, self._map_name))
+        self._state = environment.StepType.FIRST
+
+        return self._observe()
 
 MAP = {
     "Old Summoners Rift": 1,

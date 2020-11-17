@@ -66,7 +66,8 @@ class LoLProcess(object):
             "--host", self.host,
             "--port", self.port,
             "--human_count", "1",
-            "--agent_count", "1"
+            "--agent_count", "0",
+            "--multiplier", "7.5"
         ]
 
         try:

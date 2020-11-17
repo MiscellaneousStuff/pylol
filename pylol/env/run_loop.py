@@ -28,6 +28,7 @@ import subprocess
 
 from pylol import run_configs
 
+"""
 def run_loop(agents, env, max_steps=0, max_episodes=0):
     # Re-define env for now
     controller = env._controllers[0]
@@ -102,11 +103,16 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
         elapsed_time = time.time() - start_time
         print("Took %.3f seconds for %s steps: %.3f fps" % (
             elapsed_time, steps, steps / elapsed_time))
-
 """
-def run_loop(agents, env, max_episodes=0):
+
+def run_loop(agents, env, max_steps=0, max_episodes=0):
+    # Connect
+    controller = env._controllers[0]
+    controller.connect()
+
     # A run loop for agent/environment interaction
     total_episodes = 0
+    steps = 0
     start_time = time.time()
 
     observation_spec = env.observation_spec()
@@ -114,19 +120,27 @@ def run_loop(agents, env, max_episodes=0):
     for agent, obs_spec, act_spec in zip(agents, observation_spec, action_spec):
         agent.setup(obs_spec, act_spec)
     try:
-        while total_episodes < max_episodes:
+        while not max_episodes or total_episodes < max_episodes:
             total_episodes += 1
-            actions = [agent.step(timestep)
-                       for agent, timestep in zip(agents, timesteps)]
-            if max_frames and total_frames >= max_frames:
-                return
-            if timesteps[0].last():
-                break
-            timesteps = env.step(actions)
+            timesteps = env.reset()
+            for a in agents:
+                a.reset()
+            while True:
+                steps += 1
+                print("STEP:", steps)
+                actions = [agent.step(timestep)
+                           for agent, timestep in zip(agents, timesteps)]
+                if max_steps and steps >= max_steps:
+                    return
+                """
+                if timesteps[0].last():
+                    break
+                """
+                print("STEP TIMESTEPS:", steps)
+                timesteps = env.step(actions)
     except KeyboardInterrupt:
         pass
     finally:
         elapsed_time = time.time() - start_time
         print("Took %.3f seconds for %s steps: %.3f fps" % (
             elapsed_time, steps, steps / elapsed_time))
-"""

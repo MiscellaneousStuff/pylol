@@ -29,11 +29,8 @@ import numpy
 from pylol.lib import point
 import six
 
-def no_op(action, action_space):
+def no_op(action, action_space=None):
     del action, action_space
-
-def raw_no_op(action):
-    del action
 
 def numpy_to_python(val):
     """Convert numpy types to their corresponding python types."""
@@ -48,15 +45,39 @@ def numpy_to_python(val):
         return [numpy_to_python(v) for v in val]
     raise ValueError("Unknown value. Type: %s, repr: %s" % (type(val), repr(val)))
 
-class ArgumentType(collections.namedtuple(
-    "ArgumentType", ["id", "name", "sizes", "fn", "values", "count"])):
-    """Represents a single argument type.
+SPELL_FUNCTIONS = {}
 
+always = lambda _: True
+
+class Function(collections.namedtuple(
+    "Function", ["id", "name", "function_type", "args", "avail_fn"])):
+    """Represents a function action.
+    
     Attributes:
-        id: The argument id. This is unique.
-        name: The name of the argument, also unique.
-        sizes: The max + 1 of each of the dimensions this argument takes.
+        id: The function id, which is what the agent will use.
+        name: The name of the function. Should be unique.
+        function_type: One of many number of functions an agent can perform.
+        args: A list of the types of args passed to function_type.
+        avail_fn: Returns whether the function is available.
     """
+    __slots__ = ()
+
+    @classmethod
+    def noop(cls, id_, name, avail_fn=always):
+        return cls(id_, name, None, None, avail_fn)
+
+    @classmethod
+    def spell_ability(cls, id_, name, function_type, args, avail_fn):
+        assert function_type in SPELL_FUNCTIONS
+        return cls(id_, name, function_type, args, avail_fn)
+
+    def __hash__(self):
+        return self.id
+
+    @classmethod
+    def spec(cls, id_, name, args):
+        """Create a Function to be used in ValidActions."""
+        return cls(id_, name, None, args, None)
 
 class Functions(object):
     """Represents the full set of functions.
@@ -67,10 +88,12 @@ class Functions(object):
 
     def __init__(self, functions):
         functions = sorted(functions, key=lambda f: f.id)
-        self.func_list = functions
-        self.func_dict = {f.name: f for f in functions}
-        if len(self.func_dict != len(self.func_list)):
+        self._func_list = functions
+        self._func_dict = {f.name: f for f in functions}
+        print("FUNC DICT:", self._func_dict.keys())
+        if len(self._func_dict) != len(self._func_list):
             raise ValueError("Function names must be unique.")
+    
     
     def __getattr__(self, name):
         return self._func_dict[name]
@@ -94,6 +117,75 @@ class Functions(object):
 
     def __eq__(self, other):
         return self._func_list == other._func_list
+
+class ArgumentType(collections.namedtuple(
+    "ArgumentType", ["id", "name", "sizes", "fn", "values"])):
+    """Represents a single argument type.
+
+    Attributes:
+        id: The argument id. This is unique.
+        name: The name of the argument, also unique.
+        sizes: The max+1 of each of the dimensions this argument takes.
+        fn: ...
+        values: An enum representing the values this argument type could hold. None
+            if this isn't an enum argument type.
+    """
+    __slots__ = ()
+
+    def __str__(self):
+        return "%s/%s %s" % (self.id, self.name, list(self.sizes))
+
+    def __reduce__(self):
+        return self.__class__, tuple(self)
+    
+    @classmethod
+    def enum(cls, options, values):
+        """Create an ArgumentType where you choose one of a set of known values."""
+        names, real = zip(*options)
+        del names  # unused
+
+class Arguments(collections.namedtuple("Arguments", ["move_champion"])):
+    """The full list of argument types.
+
+    Attributes:
+        map: A point of the map.
+    """
+    __slots__ = ()
+
+    @classmethod
+    def types(cls, **kwargs):
+        #Create an Arguments of the possible Types.#
+        named = {name: factory(Arguments._fields.index(name), name)
+                 for name, factory in six.iteritems(kwargs)}
+        return cls(**named)
+    
+    def __reduce__(self):
+        return self.__class__, tuple(self)
+
+_FUNCTIONS = [
+    Function.noop(0, "no_op", no_op)
+]
+
+# Create IntEnum of function names/ids so printing the id will show something useful.
+# print("_FUNCTIONS := ", _FUNCTIONS)
+_Functions = enum.IntEnum("_Functions", {f.name: f.id for f in _FUNCTIONS})
+_FUNCTIONS = [f._replace(id=_Functions(f.id)) for f in _FUNCTIONS]
+FUNCTIONS = Functions(_FUNCTIONS)
+
+# Some indexes to support features.py and action conversion.
+FUNCTIONS_AVAILABLE = {f.id: f for f in FUNCTIONS if f.avail_fn}
+
+# List of types.
+"""
+TYPES = Arguments.types(
+    
+)
+"""
+
+# Argument types for different functions.
+FUNCTION_TYPES = {
+    no_op: []
+}
 
 class FunctionCall(collections.namedtuple(
     "FunctionCall", ["function", "arguments"])):
@@ -152,3 +244,45 @@ class FunctionCall(collections.namedtuple(
                     "Unknown argument value type: %s, expected int or list of ints, or "
                     "their numpy equivalents. Value: %s" % (type(arg), arg))
         return cls(func.id, args)
+
+    @classmethod
+    def all_arguments(cls, function, arguments, raw=False):
+        """Helper function for creating `FunctionCall`s with `Arguments`.
+
+        Args:
+        function: The value to store for the action function.
+        arguments: The values to store for the arguments of the action. Can either
+            be an `Arguments` object, a `dict`, or an iterable. If a `dict` or an
+            iterable is provided, the values will be unpacked into an `Arguments`
+            object.
+        raw: Whether this is a raw function call.
+
+        Returns:
+        A new `FunctionCall` instance.
+        """
+        args_type = RawArguments if raw else Arguments
+
+        if isinstance(arguments, dict):
+            arguments = args_type(**arguments)
+        elif not isinstance(arguments, args_type):
+            arguments = args_type(*arguments)
+        return cls(function, arguments)
+        
+        def __reduce__(self):
+            return self.__class__, tuple(self)
+
+"""
+class ValidActions(collections.namedtuples(
+    "ValidActions", ["types", "functions"])):
+    #The set of types and functions that are valid for an agent to use.
+
+    Attributes:
+        types: A namedtuple of the types that the functions require. Unlike TYPES
+            above, this include the sizes for screen.
+        functions: A namedtuple of all the functions.
+    #
+    __slots__ = ()
+
+    def __reduce__(self):
+        return self.__class__, tuple(self)
+"""

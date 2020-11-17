@@ -129,9 +129,18 @@ class RemoteController(object):
             return None
         else:
             obs = json.loads(json_txt[1].decode("utf-8"))
+            
+            # Print first observation for testing...
+            # if self._last_obs == None: print("FIRST OBSERVATION:", obs)
+            
             self._last_obs = obs
             return obs
     
+    def act(self, action):
+        """Send a single action."""
+        if action:
+            pass
+        
     def quit(self):
         """Shut down the redis process."""
         self.r = None
@@ -203,6 +212,10 @@ class RemoteController(object):
         }
         self.r.lpush("command", "change_champion")
         self.r.lpush("command", json.dumps(command))
+
+    def restart(self):
+        # No support for outright restarting the game within the GameServer at the moment
+        pass
 
 def start_client():
     LeagueOfLegendsClient = None

@@ -60,6 +60,7 @@ class Features(object):
         obs_spec = named_array.NamedDict({
             "game_time": (1,)
         })
+        obs_spec["available_actions"] = (0,)
 
         return obs_spec
 
@@ -71,6 +72,41 @@ class Features(object):
         })
 
         return act_spec
+
+    def available_actions(self, obs):
+        """Return the list of available action ids."""
+        available_actions = set()
+        # print("AVAILABLE ACTIONS obs:", obs)
+        obs_available_actions = obs["available_actions"]
+        print("obs_available_actions:", obs_available_actions)
+        if "can_no_op" in obs_available_actions:
+            if obs_available_actions["can_no_op"] == True:
+                available_actions.add(0)
+        """
+        print("FUNCTIONS AVAILABLE:", actions.FUNCTIONS_AVAILABLE)
+        for i, func in six.iteritems(actions.FUNCTIONS_AVAILABLE):
+            if func.avail_fn(obs):
+                available_actions.add(i)
+        """
+        # print("AVAILABLE ACTION IDS:", available_actions)
+        return list(available_actions)
+
+    def transform_obs(self, obs):
+        """Render some GameServer observations into something an agent can handle."""
+        #out = named_array.NamedDict({})
+
+        print("OBS BLUD:", obs["observation"]["game_time"])
+        print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
+
+        # Set available actions
+        """
+        out["available_actions"] = np.array(
+          self.available_actions(obs["observation"]), dtype=np.int32)
+        """
+
+        obs["available_actions"] = np.array(self.available_actions(obs["observation"]))
+        # print("NEW OBS:", obs)
+        return obs
 
     """
     def available_actions(self, obs):

@@ -32,6 +32,10 @@ from pylol import maps
 from pylol import run_configs
 from pylol.env import environment
 from pylol.lib import features
+from pylol.lib import common
+
+def to_list(arg):
+    return arg if isinstance(arg, list) else [arg]
 
 class Team(enum.IntEnum):
     BLUE = 0
@@ -141,10 +145,15 @@ class LoLEnv(environment.Base):
         if self._state == environment.StepType.LAST:
             return self.reset()
         
-        
+        actions = [[f.transform_action(o["observation"], a)
+                    for a in to_list(acts)]
+                   for f, o, acts in zip(self._features, self._obs, actions)]
+        print("Transformed Actions:", actions)
+
+        for c, a in zip(self._controllers, actions):
+            c.actions(common.RequestAction(action=a))
 
         self._state = environment.StepType.MID
-
         return self._step()
     
     def close(self):

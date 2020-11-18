@@ -49,6 +49,11 @@ SPELL_FUNCTIONS = {}
 
 always = lambda _: True
 
+# Argument types for different functions.
+FUNCTION_TYPES = {
+    no_op: []
+}
+
 class Function(collections.namedtuple(
     "Function", ["id", "name", "function_type", "args", "avail_fn"])):
     """Represents a function action.
@@ -63,13 +68,15 @@ class Function(collections.namedtuple(
     __slots__ = ()
 
     @classmethod
-    def noop(cls, id_, name, avail_fn=always):
-        return cls(id_, name, None, None, avail_fn)
+    def no_op(cls, id_, name, function_type, avail_fn=always):
+        return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
 
+    """
     @classmethod
     def spell_ability(cls, id_, name, function_type, args, avail_fn):
         assert function_type in SPELL_FUNCTIONS
         return cls(id_, name, function_type, args, avail_fn)
+    """
 
     def __hash__(self):
         return self.id
@@ -144,7 +151,28 @@ class ArgumentType(collections.namedtuple(
         names, real = zip(*options)
         del names  # unused
 
-class Arguments(collections.namedtuple("Arguments", ["move_champion"])):
+        def factory(i, name):
+            return cls(i, name, (len(real),), lambda a: real[a[0]], values)
+        return factory
+
+    @classmethod
+    def scalar(cls, value):
+        """Create an ArgumentType with a single scalar in range(value)."""
+        return lambda i, name: cls(i, name, (value,), lambda a: a[0], None)
+
+    @classmethod
+    def point(cls):  # No range because it's unknown at this time.
+        """Create an ArgumentType that is represented by a point.Point."""
+        def factory(i, name):
+            return cls(i, name, (0, 0), lambda a: point.Point(*a).floor(), None)
+        return factory
+
+    @classmethod
+    def spec(cls, id_, name, sizes):
+        """Create an ArgumentType to be used in ValidActions."""
+        return cls(id_, name, sizes, None, None)
+
+class Arguments(collections.namedtuple("Arguments", ["position"])):
     """The full list of argument types.
 
     Attributes:
@@ -163,7 +191,7 @@ class Arguments(collections.namedtuple("Arguments", ["move_champion"])):
         return self.__class__, tuple(self)
 
 _FUNCTIONS = [
-    Function.noop(0, "no_op", no_op)
+    Function.no_op(0, "no_op", no_op)
 ]
 
 # Create IntEnum of function names/ids so printing the id will show something useful.
@@ -176,16 +204,9 @@ FUNCTIONS = Functions(_FUNCTIONS)
 FUNCTIONS_AVAILABLE = {f.id: f for f in FUNCTIONS if f.avail_fn}
 
 # List of types.
-"""
 TYPES = Arguments.types(
-    
+    position=ArgumentType.point()
 )
-"""
-
-# Argument types for different functions.
-FUNCTION_TYPES = {
-    no_op: []
-}
 
 class FunctionCall(collections.namedtuple(
     "FunctionCall", ["function", "arguments"])):
@@ -260,7 +281,7 @@ class FunctionCall(collections.namedtuple(
         Returns:
         A new `FunctionCall` instance.
         """
-        args_type = RawArguments if raw else Arguments
+        args_type = Arguments
 
         if isinstance(arguments, dict):
             arguments = args_type(**arguments)
@@ -268,21 +289,19 @@ class FunctionCall(collections.namedtuple(
             arguments = args_type(*arguments)
         return cls(function, arguments)
         
-        def __reduce__(self):
-            return self.__class__, tuple(self)
+    def __reduce__(self):
+        return self.__class__, tuple(self)
 
-"""
-class ValidActions(collections.namedtuples(
+class ValidActions(collections.namedtuple(
     "ValidActions", ["types", "functions"])):
-    #The set of types and functions that are valid for an agent to use.
+    """The set of types and functions that are valid for an agent to use.
 
     Attributes:
         types: A namedtuple of the types that the functions require. Unlike TYPES
             above, this include the sizes for screen.
         functions: A namedtuple of all the functions.
-    #
+    """
     __slots__ = ()
 
     def __reduce__(self):
         return self.__class__, tuple(self)
-"""

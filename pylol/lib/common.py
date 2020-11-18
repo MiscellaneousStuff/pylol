@@ -19,21 +19,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""A random agent for league of legends."""
+"""Equivalent to protobuff for this project."""
 
-import numpy
+def Action(**kwargs):
+    """Creates an action to be sent to a GameServer via RPC."""
 
-from pylol.agents import base_agent
-from pylol.lib import actions
+    return None
 
-class RandomAgent(base_agent.BaseAgent):
-    """A random agent for league of legends."""
+def RequestAction(**kwargs):
+    """Creates an action to be sent to a GameServer via RPC."""
+    if not kwargs:
+        raise ValueError("You need to supply actions for an Action")
+    
+    # action = None
 
-    def step(self, obs):
-        super(RandomAgent, self).step(obs)
-        available_actions = obs.observation["available_actions"]
-        function_id = numpy.random.choice(available_actions)
-        args = [[numpy.random.randint(0, size) for size in arg.sizes]
-                for arg in self.action_spec.functions[function_id].args]
-        print("CURRENT FUNCTION:", function_id, args)
-        return actions.FunctionCall(function_id, args)
+    if "action" in kwargs:
+        print(kwargs["action"])
+        return None

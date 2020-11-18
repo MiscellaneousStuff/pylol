@@ -136,10 +136,15 @@ class RemoteController(object):
             self._last_obs = obs
             return obs
     
+    def actions(self, req_action):
+        """Send an action request, which may include multiple actions."""
+        print("CONTROLLER ISSUING COMMANDS:", req_action)
+        pass
+
     def act(self, action):
-        """Send a single action."""
+        """Send a single action. This is a shortcut for `actions`."""
         if action:
-            pass
+            return self.actions(action)
         
     def quit(self):
         """Shut down the redis process."""

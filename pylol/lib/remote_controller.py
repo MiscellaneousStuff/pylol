@@ -86,7 +86,7 @@ class RemoteController(object):
             command = json.loads(json_txt[1].decode("utf-8"))
             if command == "clients_join":
                 print("`clients_join` == START CLIENT:", command)
-                self._client = start_client()
+                self._client = None # start_client()
             else:
                 print("`clients_join` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `clients_join` message from GameServer")

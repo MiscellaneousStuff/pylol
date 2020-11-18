@@ -42,4 +42,4 @@ if __name__ == "__main__":
         ]
         episodes = 1
         steps = 100
-        run_loop.run_loop(random_agents, env, max_steps=steps)
+        run_loop.run_loop(scripted_agents, env, max_steps=steps)

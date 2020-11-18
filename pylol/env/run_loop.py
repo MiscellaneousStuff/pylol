@@ -28,7 +28,6 @@ import subprocess
 
 from pylol import run_configs
 
-"""
 def run_loop(agents, env, max_steps=0, max_episodes=0):
     # Re-define env for now
     controller = env._controllers[0]
@@ -59,7 +58,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
                 obs = controller.observe()
                 if obs == None:
                     sys.exit()
-                obs_list.append(obs)
+                obs_list.append(obs["observation"])
             
             # Do initialization after observation (because observation initialization embedded within every observation)
             if steps == 0:
@@ -103,8 +102,8 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
         elapsed_time = time.time() - start_time
         print("Took %.3f seconds for %s steps: %.3f fps" % (
             elapsed_time, steps, steps / elapsed_time))
-"""
 
+"""
 def run_loop(agents, env, max_steps=0, max_episodes=0):
     # Connect
     controller = env._controllers[0]
@@ -132,10 +131,10 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
                            for agent, timestep in zip(agents, timesteps)]
                 if max_steps and steps >= max_steps:
                     return
-                """
+                #
                 if timesteps[0].last():
                     break
-                """
+                #
                 print("STEP TIMESTEPS:", steps)
                 timesteps = env.step(actions)
     except KeyboardInterrupt:
@@ -144,3 +143,4 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
         elapsed_time = time.time() - start_time
         print("Took %.3f seconds for %s steps: %.3f fps" % (
             elapsed_time, steps, steps / elapsed_time))
+"""

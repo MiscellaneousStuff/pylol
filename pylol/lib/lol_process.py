@@ -65,8 +65,8 @@ class LoLProcess(object):
             exec_path,
             "--host", self.host,
             "--port", self.port,
-            "--human_count", "1",
-            "--agent_count", "0",
+            "--human_count", "0",
+            "--agent_count", "1",
             "--multiplier", "7.5"
         ]
 

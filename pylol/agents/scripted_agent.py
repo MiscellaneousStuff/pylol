@@ -102,10 +102,12 @@ class ScriptedAgent(base_agent.BaseAgent):
                 reward += REWARD_WEIGHT["taking_dmg"]
 
             # calc dealing dmg reward
+            """
             current_enemy_hp = current_state_action[0]["champ_units"][1]["current_hp"]
             prev_enemy_hp = previous_state_action[0]["champ_units"][1]["current_hp"]
             if current_enemy_hp < prev_enemy_hp:
                 reward += REWARD_WEIGHT["dealing_dmg"]
+            """
 
             # calc death reward
             prev_alive = previous_state_action[0]["champ_units"][0]["alive"]
@@ -114,10 +116,12 @@ class ScriptedAgent(base_agent.BaseAgent):
                 reward += REWARD_WEIGHT["death"]
 
             # calc kill reward
+            """
             prev_enemy_alive = previous_state_action[0]["champ_units"][1]["alive"]
             current_enemy_alive = current_state_action[0]["champ_units"][1]["alive"]
             if prev_enemy_alive == 0.0 and not current_enemy_alive == 0.0:
                 reward += REWARD_WEIGHT["kill"]
+            """
 
             # append sum of calculated rewards
             current_state_action[2] = reward
@@ -137,10 +141,17 @@ class ScriptedAgent(base_agent.BaseAgent):
         # print("Champ Units:", observation["champ_units"])
 
         # Record State and Action
+        
         state = observation
         action = None
 
+        print("AGENT CURRENT POSITION:", observation["champ_units"][0]["position"])
+        x = randint(-4, 4)
+        y = randint(-4, 4)
+        action = self.env.player_move(self.id, x, y)
+
         # ID of closest enemy
+        """
         enemy_id = -1
         lowest_distance = 0
         closest_enemy_unit = None
@@ -165,6 +176,7 @@ class ScriptedAgent(base_agent.BaseAgent):
         me_unit_y = me_unit["position"]["Y"]
         # print("Closest Enemy Position:", closest_enemy_unit_x, closest_enemy_unit_y)
         # print("ENEMY ID:", self.team, enemy_id)
+        """
 
         """
         # Act
@@ -181,12 +193,14 @@ class ScriptedAgent(base_agent.BaseAgent):
         """
 
         # Heal Ally if Low
+        """
         for champ_unit in observation["champ_units"]:
             if champ_unit["my_team"] == 1.0 and champ_unit["user_id"] == 1:
                 if champ_unit["current_hp"] < 200:
                     action = self.env.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
                     self.state_action_buffer.append([state, action, 0])
-        
+        """
+
         """
         # If previous action was auto attack, noop
         if len(self.state_action_buffer) > 8:
@@ -257,6 +271,7 @@ class ScriptedAgent(base_agent.BaseAgent):
         
         
         # Move and Attack
+        """
         if len(self.state_action_buffer) > 4:
             if self.state_action_buffer[-1][1]["type"] == "move" and self.state_action_buffer[-2][1]["type"] == "move":
                 choice = randint(0, 2)
@@ -289,6 +304,7 @@ class ScriptedAgent(base_agent.BaseAgent):
             else:
                 spell = 0
                 action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
+        """
 
         # Record (State, Action)
         self.state_action_buffer.append([state, action, 0])

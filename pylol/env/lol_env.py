@@ -61,7 +61,8 @@ class LoLEnv(environment.Base):
     def __init__(self,
                  map_name=None,
                  players=None,
-                 replay_dir=None):
+                 replay_dir=None,
+                 human_observer=False):
         """Create a League of Legends v4.20 Env.
 
         Args:
@@ -90,7 +91,7 @@ class LoLEnv(environment.Base):
         self._run_config = run_configs.get()
         self._game_info = None
         
-        self._launch_game()
+        self._launch_game(human_observer=human_observer, num_players=num_players)
 
         self._finalize()
 
@@ -104,9 +105,9 @@ class LoLEnv(environment.Base):
         self._state = environment.StepType.LAST
         logging.info("Environment is ready.")
 
-    def _launch_game(self):
+    def _launch_game(self, **kwargs):
         """Actually launch the GameServer."""
-        self._lol_procs = [self._run_config.start()]
+        self._lol_procs = [self._run_config.start(**kwargs)]
         self._controllers = [p.controller for p in self._lol_procs]
     
     @property

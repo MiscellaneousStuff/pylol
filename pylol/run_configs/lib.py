@@ -34,7 +34,7 @@ class RunConfig(object):
         self.cwd = cwd
         self.env = env
 
-    def start(self):
+    def start(self, **kwargs):
         raise NotImplementedError()
     
     @classmethod

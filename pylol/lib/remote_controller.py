@@ -52,9 +52,9 @@ class RemoteController(object):
     before returning.
     """
 
-    def __init__(self, settings, host, port, timeout_seconds, proc=None):
+    def __init__(self, settings, host, port, timeout_seconds, proc=None, kwargs=[]):
         timeout_seconds = timeout_seconds # or FLAGS.lol_timeout
-        host = host or "localhost"
+        host = host or "192.168.0.16"
         port = port or 6379
         self.host = host
         self.port = port
@@ -64,6 +64,7 @@ class RemoteController(object):
         self.settings = settings
         self._last_obs = None
         self._client = None
+        self._kwargs = kwargs
         try:
             self._proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
         except SubprocessError as e:
@@ -86,7 +87,10 @@ class RemoteController(object):
             command = json.loads(json_txt[1].decode("utf-8"))
             if command == "clients_join":
                 print("`clients_join` == START CLIENT:", command)
-                self._client = None # start_client()
+                if self._kwargs["human_observer"]:
+                    self._client = start_client(self.host)
+                else:
+                    self._client = None
             else:
                 print("`clients_join` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `clients_join` message from GameServer")
@@ -222,14 +226,14 @@ class RemoteController(object):
         # No support for outright restarting the game within the GameServer at the moment
         pass
 
-def start_client():
+def start_client(host="localhost", port="5119", playerId="1"):
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [
         "./League of Legends.exe",
         "8394",
         "",
         "",
-        "127.0.0.1 5119 17BLOhi6KZsTtldTsizvHg== 1"
+        "{0} {1} 17BLOhi6KZsTtldTsizvHg== {2}".format(host, port, playerId)
     ]
     LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
     return LeagueOfLegendsClient

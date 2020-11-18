@@ -58,21 +58,23 @@ class LoLProcess(object):
         self._proc = None
         self.controller = None
         self.check_exists(exec_path)
-        self.host = host or "localhost"
+        self.host = host or "192.168.0.16"
         self.port = port or "5119"
 
+        human_count = 1 if kwargs["human_observer"] else 0
+        agent_count = kwargs["num_players"] - human_count
         args = [
             exec_path,
             "--host", self.host,
             "--port", self.port,
-            "--human_count", "0",
-            "--agent_count", "1",
+            "--human_count", str(human_count),
+            "--agent_count", str(agent_count),
             "--multiplier", "7.5"
         ]
 
         try:
             self.controller = remote_controller.RemoteController(
-                None, None, None, timeout_seconds=timeout_seconds, proc=self)
+                None, self.host, None, timeout_seconds=timeout_seconds, proc=self, kwargs=kwargs)
             self._proc = self.launch(run_config, args, **kwargs)
         except:
             self.close()

@@ -80,5 +80,4 @@ class Linux(LocalBase):
             return 1
     
     def start(self, **kwargs):
-        extra_args = kwargs.pop("extra_args", [])
         return super(Linux, self).start(**kwargs)

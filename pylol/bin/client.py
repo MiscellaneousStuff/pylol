@@ -29,7 +29,8 @@ from pylol.env import run_loop
 if __name__ == "__main__":
     with lol_env.LoLEnv(
         map_name="New Summoners Rift",
-        players=[lol_env.Agent(champion="Ezreal", team="BLUE")]) as env:
+        players=[lol_env.Agent(champion="Ezreal", team="BLUE")],
+        human_observer=True) as env:
         scripted_agents = [
             scripted_agent.ScriptedAgent(name="1", id=1, champ="Ezreal",
                 team="BLUE", env=env._controllers[0])

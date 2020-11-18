@@ -135,7 +135,7 @@ class Features(object):
         """Render some GameServer observations into something an agent can handle."""
         #out = named_array.NamedDict({})
 
-        print("OBS BLUD:", obs["observation"]["game_time"])
+        # print("OBS BLUD:", obs["observation"]["game_time"])
         print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
 
         # Set available actions

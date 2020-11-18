@@ -19,28 +19,26 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Test run the client."""
+"""Helper functions for lib modules which don't belong anywhere else."""
 
-from pylol.agents import scripted_agent
-from pylol.agents import base_agent, random_agent
+"""
+args = [[numpy.random.randint(0, size) for size in arg.sizes]
+                for arg in self.action_spec.functions[function_id].args]
+"""
+
+import json
+
 from pylol.env import lol_env
-from pylol.env import run_loop
 
-if __name__ == "__main__":
-    with lol_env.LoLEnv(
-        map_name="Old Summoners Rift",
-        players=[lol_env.Agent(champion="Lucian", team="BLUE")],
-        human_observer=True) as env:
-        scripted_agents = [
-            scripted_agent.ScriptedAgent(name="1", id=1, champ="Lucian",
-                team="BLUE", env=env._controllers[0])
-        ]
-        random_agents = [
-            random_agent.RandomAgent()
-        ]
-        base_agents = [
-            base_agent.BaseAgent()
-        ]
-        episodes = 1
-        steps = 100
-        run_loop.run_loop(scripted_agents, env, max_steps=steps)
+def write_config(config_path, players, map_name):
+    players = [lol_env.LoLEnvSettingsPlayer(i+1, i+1, player.champ, player.team)
+               for i, player in enumerate(players)]
+
+    settings = lol_env.LoLEnvSettings(players,
+        game = lol_env.LoLEnvSettingsGame(map=lol_env.MAP[map_name]),
+        gameInfo = lol_env.LoLEnvSettingsGameInfo(cooldowns_enabled=False))
+
+    settings = json.dumps(settings, indent=4)
+
+    with open(config_path + "GameInfo.json", "w") as file:
+        file.write(settings)

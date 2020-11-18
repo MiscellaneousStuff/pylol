@@ -88,7 +88,7 @@ class RemoteController(object):
             if command == "clients_join":
                 print("`clients_join` == START CLIENT:", command)
                 if self._kwargs["human_observer"]:
-                    self._client = start_client(self.host)
+                    self._client = start_client(host=self.host)
                 else:
                     self._client = None
             else:

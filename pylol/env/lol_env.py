@@ -42,7 +42,7 @@ class Team(enum.IntEnum):
     PURPLE = 1
     NEUTRAL = 2
 
-class Agent(collections.namedtuple("Agent", ["champion", "team"])):
+class Agent(collections.namedtuple("Agent", ["champ", "team"])):
     """Define an Agent. Each agent has a champion and which team it belongs to"""
     def __new__(cls, champion, team):
         return super(Agent, cls).__new__(cls, champion, team)
@@ -91,7 +91,7 @@ class LoLEnv(environment.Base):
         self._run_config = run_configs.get()
         self._game_info = None
         
-        self._launch_game(human_observer=human_observer, num_players=num_players)
+        self._launch_game(human_observer=human_observer, players=players, map_name=map_name)
 
         self._finalize()
 

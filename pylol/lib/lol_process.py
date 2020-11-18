@@ -29,6 +29,7 @@ import os
 from absl import flags
 
 from pylol.lib import remote_controller
+from pylol.lib import utils
 
 class LoLLaunchError(Exception):
     pass
@@ -60,9 +61,10 @@ class LoLProcess(object):
         self.check_exists(exec_path)
         self.host = host or "192.168.0.16"
         self.port = port or "5119"
+        self._run_config = run_config
 
         human_count = 1 if kwargs["human_observer"] else 0
-        agent_count = kwargs["num_players"] - human_count
+        agent_count = len(kwargs["players"]) - human_count
         args = [
             exec_path,
             "--host", self.host,
@@ -82,9 +84,12 @@ class LoLProcess(object):
 
     def launch(self, run_config, args, **kwargs):
         """Launch the process and return the process object."""
-        del kwargs
         try:
-            print("LoLProcess Args:", args)
+            # Write the config
+            config_path = self._run_config.exec_dir + "./Settings/"
+            utils.write_config(config_path=config_path, players=kwargs["players"], map_name=kwargs["map_name"])
+
+            # Run the GameServer
             return subprocess.Popen(args, cwd=run_config.cwd, env=run_config.env)
         except OSError:
             logging.execution("Failed to launch")

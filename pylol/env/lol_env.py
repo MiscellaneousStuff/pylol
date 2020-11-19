@@ -52,6 +52,10 @@ class CustomObs():
     def __init__(self, obs):
         self.observation = obs
 
+Dimensions = features.Dimensions
+AgentInterfaceFormat = features.AgentInterfaceFormat
+parse_agent_interface_format = features.parse_agent_interface_format
+
 class LoLEnv(environment.Base):
     """A League of Legends v4.20 environment.
 
@@ -61,8 +65,10 @@ class LoLEnv(environment.Base):
     def __init__(self,
                  map_name=None,
                  players=None,
+                 agent_interface_format=None,
                  replay_dir=None,
-                 human_observer=False):
+                 human_observer=False,
+                 cooldowns_enabled=False):
         """Create a League of Legends v4.20 Env.
 
         Args:
@@ -80,7 +86,12 @@ class LoLEnv(environment.Base):
                 raise ValueError(
                     "Expected players to be of type Agent. Got: %s." % p)
         
-        num_players = len(players)
+        if agent_interface_format is None:
+            raise ValueError("Please specify agent_interface_format.")
+        
+        self._agent_interface_format = agent_interface_format
+
+        # num_players = len(players)
         self._num_agents = sum(1 for p in players if isinstance(p, Agent))
         self.players = players
 
@@ -91,7 +102,8 @@ class LoLEnv(environment.Base):
         self._run_config = run_configs.get()
         self._game_info = None
         
-        self._launch_game(human_observer=human_observer, players=players, map_name=map_name)
+        self._launch_game(human_observer=human_observer, players=players,
+            map_name=map_name, cooldowns_enabled=cooldowns_enabled)
 
         self._finalize()
 
@@ -99,7 +111,11 @@ class LoLEnv(environment.Base):
         self._total_steps = 0
         self._episode_steps = 0
         self._episode_count = 0
-        self._features = [features.features_from_game_info()]
+
+        self._features = [features.features_from_game_info(
+            agent_interface_format=self._agent_interface_format
+        )]
+
         self._obs = [None] * self._num_agents
         self._agent_obs = [None] * self._num_agents
         self._state = environment.StepType.LAST
@@ -192,7 +208,7 @@ class LoLEnv(environment.Base):
         print("_get_observations.res:", res)
         """
         obs = self._controllers[0].observe()
-        print("_get_observations.obs:", obs)
+        # print("_get_observations.obs:", obs)
         agent_obs = self._features[0].transform_obs(obs)
         self._obs, self._agent_obs = [obs], [agent_obs]
 

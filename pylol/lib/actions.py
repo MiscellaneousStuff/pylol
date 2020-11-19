@@ -29,8 +29,11 @@ import numpy
 from pylol.lib import point
 import six
 
-def no_op(action, action_space=None):
-    del action, action_space
+def no_op(action):
+    del action
+
+def move_to(action, position=None):
+    print("MOVE_TO_POSITION:", position)
 
 def numpy_to_python(val):
     """Convert numpy types to their corresponding python types."""
@@ -48,82 +51,6 @@ def numpy_to_python(val):
 SPELL_FUNCTIONS = {}
 
 always = lambda _: True
-
-# Argument types for different functions.
-FUNCTION_TYPES = {
-    no_op: []
-}
-
-class Function(collections.namedtuple(
-    "Function", ["id", "name", "function_type", "args", "avail_fn"])):
-    """Represents a function action.
-    
-    Attributes:
-        id: The function id, which is what the agent will use.
-        name: The name of the function. Should be unique.
-        function_type: One of many number of functions an agent can perform.
-        args: A list of the types of args passed to function_type.
-        avail_fn: Returns whether the function is available.
-    """
-    __slots__ = ()
-
-    @classmethod
-    def no_op(cls, id_, name, function_type, avail_fn=always):
-        return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
-
-    """
-    @classmethod
-    def spell_ability(cls, id_, name, function_type, args, avail_fn):
-        assert function_type in SPELL_FUNCTIONS
-        return cls(id_, name, function_type, args, avail_fn)
-    """
-
-    def __hash__(self):
-        return self.id
-
-    @classmethod
-    def spec(cls, id_, name, args):
-        """Create a Function to be used in ValidActions."""
-        return cls(id_, name, None, args, None)
-
-class Functions(object):
-    """Represents the full set of functions.
-
-    Can't use namedtuple since python3 has a limit of 255 function arguments, so
-    build something similar.
-    """
-
-    def __init__(self, functions):
-        functions = sorted(functions, key=lambda f: f.id)
-        self._func_list = functions
-        self._func_dict = {f.name: f for f in functions}
-        print("FUNC DICT:", self._func_dict.keys())
-        if len(self._func_dict) != len(self._func_list):
-            raise ValueError("Function names must be unique.")
-    
-    
-    def __getattr__(self, name):
-        return self._func_dict[name]
-
-    def __getitem__(self, key):
-        if isinstance(key, numbers.Integral):
-            return self._func_list[key]
-        return self._func_dict[key]
-
-    def __getstate__(self):
-        return self._func_list
-
-    def __setstate__(self, functions):
-        self.__init__(functions)
-
-    def __iter__(self):
-        return iter(self._func_list)
-
-    def __len__(self):
-        return len(self._func_list)
-
-    def __eq__(self, other):
-        return self._func_list == other._func_list
 
 class ArgumentType(collections.namedtuple(
     "ArgumentType", ["id", "name", "sizes", "fn", "values"])):
@@ -171,7 +98,7 @@ class ArgumentType(collections.namedtuple(
     def spec(cls, id_, name, sizes):
         """Create an ArgumentType to be used in ValidActions."""
         return cls(id_, name, sizes, None, None)
-
+        
 class Arguments(collections.namedtuple("Arguments", ["position"])):
     """The full list of argument types.
 
@@ -190,8 +117,116 @@ class Arguments(collections.namedtuple("Arguments", ["position"])):
     def __reduce__(self):
         return self.__class__, tuple(self)
 
+# List of types.
+TYPES = Arguments.types(
+    position=ArgumentType.point()
+)
+
+# Argument types for different functions.
+FUNCTION_TYPES = {
+    no_op: [],
+    move_to: [TYPES.position]
+}
+
+POINT_REQUIRED_FUNCS = {
+    False: {},
+    True: {move_to}}
+
+class Function(collections.namedtuple(
+    "Function", ["id", "name", "function_type", "args", "avail_fn"])):
+    """Represents a function action.
+    
+    Attributes:
+        id: The function id, which is what the agent will use.
+        name: The name of the function. Should be unique.
+        function_type: One of the functions in FUNCTION_TYPES for how to construct
+            the lol action out of python types.
+        args: A list of the types of args passed to function_type.
+        avail_fn: Returns whether the function is available.
+    """
+    __slots__ = ()
+
+    @classmethod
+    def no_op(cls, id_, name, function_type, avail_fn=always):
+        return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
+    
+    @classmethod
+    def move(cls, id_, name, function_type, avail_fn=always):
+        return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
+
+    """
+    @classmethod
+    def spell_ability(cls, id_, name, function_type, args, avail_fn):
+        assert function_type in SPELL_FUNCTIONS
+        return cls(id_, name, function_type, args, avail_fn)
+    """
+
+    @classmethod
+    def spec(cls, id_, name, args):
+        """Create a Function to be used in ValidActions."""
+        return cls(id_, name, None, args, None)
+
+    def __hash__(self):
+        return self.id
+
+    def __str__(self):
+        return self.str()
+
+    def __reduce__(self):
+        return self.__class__, tuple(self)
+    
+    def __call__(self, *args):
+        """A convenient way to create a FunctionCall from this Function."""
+        return FunctionCall.init_with_validation(self.id, args)
+
+    def str(self, space=False):
+        """String version. Set space=True to line them all up nicely."""
+        return "%s/%s (%s)" % (str(int(self.id)).rjust(space and 4),
+                            self.name.ljust(space and 50),
+                            "; ".join(str(a) for a in self.args))
+
+class Functions(object):
+    """Represents the full set of functions.
+
+    Can't use namedtuple since python3 has a limit of 255 function arguments, so
+    build something similar.
+    """
+
+    def __init__(self, functions):
+        functions = sorted(functions, key=lambda f: f.id)
+        self._func_list = functions
+        self._func_dict = {f.name: f for f in functions}
+        print("FUNC DICT:", self._func_dict.keys())
+        if len(self._func_dict) != len(self._func_list):
+            raise ValueError("Function names must be unique.")
+    
+    
+    def __getattr__(self, name):
+        return self._func_dict[name]
+
+    def __getitem__(self, key):
+        if isinstance(key, numbers.Integral):
+            return self._func_list[key]
+        return self._func_dict[key]
+
+    def __getstate__(self):
+        return self._func_list
+
+    def __setstate__(self, functions):
+        self.__init__(functions)
+
+    def __iter__(self):
+        return iter(self._func_list)
+
+    def __len__(self):
+        return len(self._func_list)
+
+    def __eq__(self, other):
+        return self._func_list == other._func_list
+
 _FUNCTIONS = [
-    Function.no_op(0, "no_op", no_op)
+    Function.no_op(0, "no_op", no_op),
+    Function.move(1, "move_to", move_to)
 ]
 
 # Create IntEnum of function names/ids so printing the id will show something useful.
@@ -202,11 +237,6 @@ FUNCTIONS = Functions(_FUNCTIONS)
 
 # Some indexes to support features.py and action conversion.
 FUNCTIONS_AVAILABLE = {f.id: f for f in FUNCTIONS if f.avail_fn}
-
-# List of types.
-TYPES = Arguments.types(
-    position=ArgumentType.point()
-)
 
 class FunctionCall(collections.namedtuple(
     "FunctionCall", ["function", "arguments"])):
@@ -264,6 +294,7 @@ class FunctionCall(collections.namedtuple(
                 raise ValueError(
                     "Unknown argument value type: %s, expected int or list of ints, or "
                     "their numpy equivalents. Value: %s" % (type(arg), arg))
+        print("FunctionCall: ", func.id, args)
         return cls(func.id, args)
 
     @classmethod

@@ -33,11 +33,124 @@ from pylol.lib import named_array
 from pylol.lib import point
 from pylol.lib import common
 
+class AgentInterfaceFormat(object):
+    """Observation and action interface format specific to a particular agent."""
+    
+    def __init__(self, feature_dimensions=None):
+        """Initializer.
+
+        Args:
+            feature_dimensions: Feature layer `Dimension`.
+        """
+        if not feature_dimensions:
+            raise ValueError("Must set feature dimensions")
+            
+        self._feature_dimensions = feature_dimensions
+        self._action_dimensions = feature_dimensions
+
+    @property
+    def feature_dimensions(self):
+        return self._feature_dimensions
+    
+    @property
+    def action_dimensions(self):
+        return self._action_dimensions
+
+def parse_agent_interface_format(feature_map=None):
+    """Creates an AgentInterfaceFormat object from keyword args.
+
+    Convenient when using dictionaries or command-line arguments for config.
+
+    Note that the feature_* and rgb_* properties define the respective spatial
+    observation dimensions and accept:
+        * None or 0 to disable that spatial observation.
+        * A single int for a square observation with that side length.
+        * A (int, int) tuple for a rectangular (width, height) observation.
+
+    Args:
+        feature_map: Map dimensions.
+    
+    Returns:
+        An `AgentInterfaceFormat` object.
+    
+    Raises:
+    ValueError: If an invalid parameter is specified.
+    """
+    if feature_map:
+        feature_dimensions = Dimensions(feature_map)
+    else:
+        feature_dimensions = None
+    
+    return AgentInterfaceFormat(feature_dimensions=feature_dimensions)
+
+def _to_point(dims):
+  """Convert (width, height) or size -> point.Point."""
+  assert dims
+
+  if isinstance(dims, (tuple, list)):
+    if len(dims) != 2:
+      raise ValueError(
+          "A two element tuple or list is expected here, got {}.".format(dims))
+    else:
+      width = int(dims[0])
+      height = int(dims[1])
+      if width <= 0 or height <= 0:
+        raise ValueError("Must specify +ve dims, got {}.".format(dims))
+      else:
+        return point.Point(width, height)
+  else:
+    size = int(dims)
+    if size <= 0:
+      raise ValueError(
+          "Must specify a +ve value for size, got {}.".format(dims))
+    else:
+      return point.Point(size, size)
+
+class Dimensions(object):
+    """Map dimensions configuration.
+
+    Map dimensions must be specified. Sizes must be positive.
+
+    Attributes:
+        map: A (width, height) int tuple or a single int to be used.
+    """
+
+    def __init__(self, map=None):
+        if not map:
+            raise ValueError("map must be set, map={}".format(map))
+    
+        self._map = _to_point(map)
+
+    @property
+    def map(self):
+        return self._map
+    
+    def __repr__(self):
+        return "Dimensions(map={})".format(self.map)
+
+    def __eq__(self, other):
+        return (isinstance(other, Dimensions) and self.screen == other.screen)
+
+    def __ne__(self, other):
+        return not self == other
+
 class Features(object):
     """Render feature layers from GameServer observation into numpy arrays."""
 
-    def __init__(self):
-        self._valid_functions = _init_valid_functions()
+    def __init__(self, agent_interface_format=None):
+        """Initialize a Features instance matching the specified interface format.
+
+        Args:
+            agent_interface_format: See the documentation for `AgentInterfaceFormat`.
+        """
+        if not agent_interface_format:
+            raise ValueError("Please specify agent_interface_format")
+        
+        self._agent_interface_format = agent_interface_format
+        aif = self._agent_interface_format
+
+        print("AIF:", aif)
+        self._valid_functions = _init_valid_functions(aif.action_dimensions)
     
     def observation_spec(self):
         """The observation spec for the League of Legends v4.20 environment.
@@ -62,7 +175,7 @@ class Features(object):
         available_actions = set()
         obs_available_actions = obs["available_actions"]
         if obs_available_actions["can_no_op"]: available_actions.add(0)
-        # if obs_available_actions["can_move"]: available_actions.add(1)
+        if obs_available_actions["can_move"]: available_actions.add(1)
         """
         print("FUNCTIONS AVAILABLE:", actions.FUNCTIONS_AVAILABLE)
         for i, func in six.iteritems(actions.FUNCTIONS_AVAILABLE):
@@ -100,15 +213,13 @@ class Features(object):
                     func, func_call.arguments))
         
         # Args are valid?
+        aif = self._agent_interface_format
+        print("FUNC:", func.args, func_call.arguments)
         for t, arg in zip(func.args, func_call.arguments):
-            if t.count:
-                if 1 <= len(arg) <= t.count:
-                    continue
+            if t.name in ("position"):
+                sizes = aif.action_dimensions.map
             else:
-                raise ValueError(
-                    "Wrong number of values for argument of %s, got: %s" % (
-                        func, func_call.arguments))
-            sizes = t.sizes
+                sizes = t.sizes
             if len(sizes) != len(arg):
                 raise ValueError(
                     "Wrong number of values for argument of %s, got: %s" % (
@@ -127,7 +238,9 @@ class Features(object):
 
         kwargs["action"] = lol_action
 
-        actions.FUNCTIONS[func_id].function_type(**kwargs)
+        print("kwargs:", kwargs)
+        a = actions.FUNCTIONS[func_id].function_type(**kwargs)
+        print("kwargs a:", a)
 
         return lol_action
 
@@ -148,10 +261,10 @@ class Features(object):
         # print("NEW OBS:", obs)
         return obs
 
-def _init_valid_functions():
+def _init_valid_functions(action_dimensions):
     """Initialize ValidFunctions and set up the callbacks."""
     sizes = {
-        "position": tuple([0, 0])
+        "position": tuple(int(i) for i in action_dimensions.map)
     }
 
     types = actions.Arguments(*[
@@ -172,11 +285,11 @@ def _init_valid_functions():
     
     return actions.ValidActions(types, functions)
     
-def features_from_game_info():
+def features_from_game_info(agent_interface_format=None):
     """Construct a Features object using data extracted from game info.
 
     Returns:
         A features object.
     """
 
-    return Features()
+    return Features(agent_interface_format=agent_interface_format)

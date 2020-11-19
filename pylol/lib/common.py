@@ -24,7 +24,7 @@
 def Action(**kwargs):
     """Creates an action to be sent to a GameServer via RPC."""
 
-    return None
+    return "Action"
 
 def RequestAction(**kwargs):
     """Creates an action to be sent to a GameServer via RPC."""

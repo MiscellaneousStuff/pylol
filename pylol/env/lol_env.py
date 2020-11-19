@@ -254,6 +254,16 @@ class LoLEnv(environment.Base):
 
         return self._observe()
 
+    def save_replay(self, replay_dir, prefix=None):
+        """Saves a replay to a custom replay file."""
+        if prefix is None:
+            prefix = self._map_name
+        replay_path = self._run_config.save_replay(
+            self._controllers[0].save_replay(), replay_dir, prefix
+        )
+        logging.info("Wrote replay to: %s", replay_path)
+        return replay_path
+
 MAP = {
     "Old Summoners Rift": 1,
     "New Summoners Rift": 11,

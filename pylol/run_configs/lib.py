@@ -21,6 +21,15 @@
 # SOFTWARE.
 """Configs for various ways to run League of Legends v4.20."""
 
+import datetime
+import os
+
+Exists = os.path.exists
+IsDirectory = os.path.isdir
+ListDir = os.listdir
+MakeDirs = os.makedirs
+Open = open
+
 class RunConfig(object):
     """Base class for different run configs."""
 
@@ -53,3 +62,41 @@ class RunConfig(object):
     @classmethod
     def name(cls):
         return cls.__name__
+    
+    def abs_replay_path(self, replay_path):
+        """Return the absolute path to the replay, outside the sandbox."""
+        return os.path.join(self.replay_dir, replay_path)
+
+    def save_replay(self, replay_data, replay_dir, prefix=None):
+        """Save a replay to a directory, returning the path to the replay.
+
+        Args:
+            replay_data: The result of controller.save_replay(), whch is a serialised
+                list of the map, players, multiplier and timestamped actions.
+        
+        Returns:
+            The full path where the replay is saved.
+        
+        Raises:
+            ValueError: If the prefix contains the path separator.
+        """
+
+        if not prefix:
+            replay_filename = ""
+        elif os.path.sep in prefix:
+            raise ValueError("Prefix '%s' contains '%s', use replay_dir instead." % (
+                prefix, os.path.sep))
+        else:
+            replay_filename = prefix + "_"
+        
+        now = datetime.datetime.utcnow().replace(microsecond=0)
+        replay_filename += "%s.json" % now.isoformat("-").replace(":", "-")
+        replay_dir = self.abs_replay_path(replay_dir)
+
+        if not Exists(replay_dir):
+            MakeDirs(replay_dir)
+        replay_path = os.path.join(replay_dir, replay_filename)
+        print("REPLAY DATA:", replay_data)
+        with Open(replay_path, "w") as f:
+            f.write(replay_data)
+        return replay_path

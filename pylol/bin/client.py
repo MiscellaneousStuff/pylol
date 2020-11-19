@@ -34,8 +34,9 @@ point_flag.DEFINE_point("feature_map_size", "16000",
                         "Resolution for screen feature layers.")
 point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
-flags.DEFINE_string("players", "Ezreal.BLUE,Lucian.PURPLE", "")
+flags.DEFINE_string("players", "Ezreal.BLUE,Lucian.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
+flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
 def main(unused_argv):
     players = []
@@ -53,12 +54,14 @@ def main(unused_argv):
             feature_map=FLAGS.feature_map_size,
             feature_move_range=FLAGS.feature_move_range
         ),
-        human_observer=True,
+        human_observer=False,
         cooldowns_enabled=False) as env:
-        
+
         # episodes = 2
-        steps = 500
+        steps = 50
         run_loop.run_loop(agents, env, max_steps=steps)
+        if FLAGS.save_replay:
+            env.save_replay(agents[0].__class__.__name__)
 
 def entry_point():
     app.run(main)

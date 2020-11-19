@@ -249,6 +249,24 @@ class RemoteController(object):
         # No support for outright restarting the game within the GameServer at the moment
         pass
 
+    def save_replay(self):
+        """Save a replay, returning the data."""
+        command = {
+            "map": str("map"),
+            "players": str("players"),
+            "multiplier": float(7.5)
+        }
+        self.r.lpush("command", "save_replay")
+        self.r.lpush("command", json.dumps(command))
+
+        replay_json = self.r.brpop("command_data", self.timeout)
+        print("REPLAY JSON", replay_json)
+        if replay_json == None:
+            raise ConnectionError("GameServer couldn't provide replay json data")
+        
+        replay_json = replay_json[1].decode("utf-8")
+        return replay_json
+
 def start_client(host="localhost", port="5119", playerId="1"):
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [

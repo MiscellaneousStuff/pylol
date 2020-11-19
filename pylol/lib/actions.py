@@ -30,10 +30,10 @@ from pylol.lib import point
 import six
 
 def no_op(action):
-    del action
+    action.fill("no_op")
 
-def move_to(action, position=None):
-    print("MOVE_TO_POSITION:", position)
+def move_to(action, **kwargs):
+    action.fill("move_to", **kwargs)
 
 def numpy_to_python(val):
     """Convert numpy types to their corresponding python types."""
@@ -177,6 +177,7 @@ class Function(collections.namedtuple(
     
     def __call__(self, *args):
         """A convenient way to create a FunctionCall from this Function."""
+        print("This is being called")
         return FunctionCall.init_with_validation(self.id, args)
 
     def str(self, space=False):

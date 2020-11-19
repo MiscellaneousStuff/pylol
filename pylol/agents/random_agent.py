@@ -31,12 +31,11 @@ class RandomAgent(base_agent.BaseAgent):
 
     def step(self, obs):
         super(RandomAgent, self).step(obs)
-        print("RANDOM OBS:", obs)
+        #print("RANDOM OBS:", obs)
         available_actions = obs.observation["available_actions"]
         function_id = numpy.random.choice(available_actions)
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
                 for arg in self.action_spec.functions[function_id].args]
-        print("CURRENT FUNCTION:", function_id,
-            self.action_spec.functions[function_id],
-            self.action_spec.functions[function_id].args, args)
-        return actions.FunctionCall(function_id, args)
+        function_call = actions.FunctionCall(function_id, args)
+        print("FUNCTION CALL:", function_call)
+        return function_call

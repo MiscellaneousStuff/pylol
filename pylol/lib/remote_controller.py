@@ -21,8 +21,9 @@
 # SOFTWARE.
 """Controllers take actions and generates observations."""
 
-from absl import logging
+import sys
 
+from absl import logging
 from absl import flags
 # from pylol.lib import protocol
 
@@ -126,6 +127,8 @@ class RemoteController(object):
             self.r.delete("observation") # Reset observation pipe
             self.r.lpush("command", "start_observing") # Start observing
 
+            self.players_reset()
+
         # Get the observation
         json_txt = self.r.brpop("observation", self.timeout)
         if json_txt == None:
@@ -142,8 +145,21 @@ class RemoteController(object):
     
     def actions(self, req_action):
         """Send an action request, which may include multiple actions."""
-        print("CONTROLLER ISSUING COMMANDS:", req_action)
-        pass
+        if FLAGS.lol_log_actions and req_action.actions:
+            sys.stderr.write(" Sending actions ".center(60, ">") + "\n")
+            for action in req_action.actions:
+                sys.stderr.write(str(action))
+        
+        """Actually perform the actions here."""
+        for action in req_action.actions:
+            action = action.props
+            if action["type"] == "no_op":
+                pass
+            elif action["type"] == "move_to":
+                playerId = 1
+                x = int((action["position"].x / 16000.0) * 8) - 4
+                y = int((action["position"].y / 16000.0) * 8) - 4
+                self.player_move(playerId, x, y)
 
     def act(self, action):
         """Send a single action. This is a shortcut for `actions`."""
@@ -181,6 +197,7 @@ class RemoteController(object):
         self.r.lpush("action", "")
 
     def player_move(self, player_id, x, y):
+        print("player_move: ", id, x, y, self.r)
         action = {
             "player_id": str(player_id),
             "x": float(x * 100.0),

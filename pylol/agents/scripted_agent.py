@@ -149,7 +149,7 @@ class ScriptedAgent(base_agent.BaseAgent):
                 print("Agent: {0}, HP := {1}/{2}".format(i+1, champ_unit["current_hp"], champ_unit["max_hp"]))
 
         # ID of closest enemy
-        
+        """
         enemy_id = -1
         lowest_distance = 0
         closest_enemy_unit = None
@@ -174,7 +174,8 @@ class ScriptedAgent(base_agent.BaseAgent):
         me_unit_y = me_unit["position"]["Y"]
         # print("Closest Enemy Position:", closest_enemy_unit_x, closest_enemy_unit_y)
         # print("ENEMY ID:", self.team, enemy_id)
-        
+        """
+
         # Act
         """
         action_choice = randint(0, 2)
@@ -190,13 +191,13 @@ class ScriptedAgent(base_agent.BaseAgent):
         """
 
         # Heal Ally if Low
-        
+        """
         for champ_unit in observation["champ_units"]:
             if champ_unit["my_team"] == 1.0 and champ_unit["user_id"] == 1:
                 if champ_unit["current_hp"] < 200:
                     action = self.env.player_spell(self.id, champ_unit["user_id"], 5, me_unit_x, me_unit_y)
                     self.state_action_buffer.append([state, action, 0])
-        
+        """
 
         """
         # If previous action was auto attack, noop
@@ -266,7 +267,7 @@ class ScriptedAgent(base_agent.BaseAgent):
         # action = lolenv.player_spell(self.id, enemy_id, 0)
         # action = lolenv.player_attack(self.id, 1)
         
-        
+        """
         # Move and Attack
         if len(self.state_action_buffer) > 4:
             if self.state_action_buffer[-1][1]["type"] == "move" and self.state_action_buffer[-2][1]["type"] == "move":
@@ -300,7 +301,11 @@ class ScriptedAgent(base_agent.BaseAgent):
             else:
                 spell = 1 if randint(0, 1) == 1 else 0
                 action = self.env.player_spell(self.id, enemy_id, spell, closest_enemy_unit_x, closest_enemy_unit_y)
-        
+        """
+
+        x = randint(-4, 4)
+        y = randint(-4, 4)
+        action = self.env.player_move(self.id, x, y)
 
         # Record (State, Action)
         self.state_action_buffer.append([state, action, 0])

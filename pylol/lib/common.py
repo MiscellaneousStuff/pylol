@@ -21,18 +21,23 @@
 # SOFTWARE.
 """Equivalent to protobuff for this project."""
 
-def Action(**kwargs):
-    """Creates an action to be sent to a GameServer via RPC."""
+class Action(object):
+    """Creates an action template to be converted to a RequestAction."""
 
-    return "Action"
-
-def RequestAction(**kwargs):
-    """Creates an action to be sent to a GameServer via RPC."""
-    if not kwargs:
-        raise ValueError("You need to supply actions for an Action")
+    def __init__(self):
+        self.props = {}
     
-    # action = None
+    def fill(self, type, **kwargs):
+        self.props["type"] = type
+        for key, value in kwargs.items():
+            self.props[key] = value
+    
+    def get(self):
+        return self.props
+        
+    def __str__(self):
+        return str(self.props)
 
-    if "action" in kwargs:
-        print(kwargs["action"])
-        return None
+class RequestAction(object):
+    def __init__(self, actions):
+        self.actions = actions

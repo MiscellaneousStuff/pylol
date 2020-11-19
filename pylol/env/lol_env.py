@@ -168,7 +168,7 @@ class LoLEnv(environment.Base):
         print("Transformed Actions:", actions)
 
         for c, a in zip(self._controllers, actions):
-            c.actions(common.RequestAction(action=a))
+            c.actions(common.RequestAction(actions=a))
 
         self._state = environment.StepType.MID
         return self._step()

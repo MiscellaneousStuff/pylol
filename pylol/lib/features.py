@@ -126,10 +126,10 @@ class Dimensions(object):
         return self._map
     
     def __repr__(self):
-        return "Dimensions(map={})".format(self.map)
+        return "Dimensions(map={})".format(self._map)
 
     def __eq__(self, other):
-        return (isinstance(other, Dimensions) and self.screen == other.screen)
+        return (isinstance(other, Dimensions) and self._map == other._map)
 
     def __ne__(self, other):
         return not self == other
@@ -198,6 +198,10 @@ class Features(object):
         Raises:
             ValueError: if the action doesn't pass validation.
         """
+        """
+        if isinstance(func_call, common.Action):
+            return func_call
+        """
 
         # Valid id?
         func_id = func_call.function
@@ -237,10 +241,7 @@ class Features(object):
         lol_action = common.Action()
 
         kwargs["action"] = lol_action
-
-        print("kwargs:", kwargs)
-        a = actions.FUNCTIONS[func_id].function_type(**kwargs)
-        print("kwargs a:", a)
+        actions.FUNCTIONS[func_id].function_type(**kwargs)
 
         return lol_action
 
@@ -249,15 +250,13 @@ class Features(object):
         #out = named_array.NamedDict({})
 
         # print("OBS BLUD:", obs["observation"]["game_time"])
-        print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
+        # print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
 
         # Set available actions
-        """
-        out["available_actions"] = np.array(
+        obs["available_actions"] = np.array(
           self.available_actions(obs["observation"]), dtype=np.int32)
-        """
 
-        obs["available_actions"] = np.array(self.available_actions(obs["observation"]))
+        # obs["available_actions"] = np.array(self.available_actions(obs["observation"]))
         # print("NEW OBS:", obs)
         return obs
 

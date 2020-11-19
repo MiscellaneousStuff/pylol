@@ -34,8 +34,16 @@ class ProtocolError(Exception):
 class LeagueProtocol(object):
     """Defines the protocol for chatting with the GameServer."""
 
-    def __init__(self, _redis):
-        self._redis = _redis
+    def __init__(self, host, port, timeout_seconds):
+        self.host = host
+        self.port = port
+        self.pool = redis.ConnectionPool(host=host, port=port, db=0)
+        self.r = redis.Redis(connection_pool=self.pool)
+        self.timeout = timeout_seconds
+        self._client = None
+
+    def close(self):
+        pass
     
     """
     def send(self, **kwargs):

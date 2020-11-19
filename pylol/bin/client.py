@@ -40,20 +40,16 @@ def main(unused_argv):
     with lol_env.LoLEnv(
         map_name="New Summoners Rift",
         players=[
-            lol_env.Agent(champion="Ezreal", team="BLUE"),
-            lol_env.Agent(champion="Ezreal", team="PURPLE")
+            lol_env.Agent(champion="Ezreal", team="BLUE")
         ],
         agent_interface_format=lol_env.parse_agent_interface_format(
             feature_map=FLAGS.feature_map_size,
         ),
-        human_observer=False,
+        human_observer=True,
         cooldowns_enabled=False) as env:
-        """
         scripted_agents = [
-            scripted_agent.ScriptedAgent(id=1, team="BLUE", env=env._controllers[0]),
-            scripted_agent.ScriptedAgent(id=2, team="PURPLE", env=env._controllers[0])
+            scripted_agent.ScriptedAgent(id=1, team="BLUE", env=env._controllers[0])
         ]
-        """
         random_agents = [
             random_agent.RandomAgent()
         ]

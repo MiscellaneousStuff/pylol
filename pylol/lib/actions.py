@@ -35,6 +35,9 @@ def no_op(action):
 def move(action, **kwargs):
     action.fill("move", **kwargs)
 
+def spell(action, **kwargs):
+    action.fill("spell", **kwargs)
+
 def numpy_to_python(val):
     """Convert numpy types to their corresponding python types."""
     if isinstance(val, (int, float)):
@@ -71,7 +74,7 @@ class ArgumentType(collections.namedtuple(
 
     def __reduce__(self):
         return self.__class__, tuple(self)
-    
+        
     @classmethod
     def enum(cls, options, values):
         """Create an ArgumentType where you choose one of a set of known values."""
@@ -99,12 +102,14 @@ class ArgumentType(collections.namedtuple(
         """Create an ArgumentType to be used in ValidActions."""
         return cls(id_, name, sizes, None, None)
         
-class Arguments(collections.namedtuple("Arguments", ["move_range", "position"])):
+class Arguments(collections.namedtuple("Arguments",
+                ["move_range", "position", "spell"])):
     """The full list of argument types.
 
     Attributes:
         move_range: Relative units away from current position in 100s of units.
         position: A point on the map.
+        spell: A champion ability or summoner spell cast by a champion.
     """
     __slots__ = ()
 
@@ -118,21 +123,33 @@ class Arguments(collections.namedtuple("Arguments", ["move_range", "position"]))
     def __reduce__(self):
         return self.__class__, tuple(self)
 
+SPELL_OPTIONS = (
+    ("Q", 0),
+    ("W", 1),
+    ("E", 2),
+    ("R", 3),
+    ("Sum1", 4),
+    ("Sum2", 5)
+)
+Spell = ("Spell", SPELL_OPTIONS)
+
 # List of types.
 TYPES = Arguments.types(
     position=ArgumentType.point(),
-    move_range=ArgumentType.point()
+    move_range=ArgumentType.point(),
+    spell=ArgumentType.enum(SPELL_OPTIONS, Spell)
 )
 
 # Argument types for different functions.
 FUNCTION_TYPES = {
     no_op: [],
-    move: [TYPES.move_range]
+    move: [TYPES.move_range],
+    spell: [TYPES.spell, TYPES.position]
 }
 
 POINT_REQUIRED_FUNCS = {
     False: {},
-    True: {move}}
+    True: {move, spell}}
 
 class Function(collections.namedtuple(
     "Function", ["id", "name", "function_type", "args", "avail_fn"])):
@@ -154,6 +171,10 @@ class Function(collections.namedtuple(
     
     @classmethod
     def move(cls, id_, name, function_type, avail_fn=always):
+        return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
+
+    @classmethod
+    def spell(cls, id_, name, function_type, avail_fn=always):
         return cls(id_, name, function_type, FUNCTION_TYPES[function_type], avail_fn)
 
     """
@@ -228,7 +249,8 @@ class Functions(object):
 
 _FUNCTIONS = [
     Function.no_op(0, "no_op", no_op),
-    Function.move(1, "move", move)
+    Function.move(1, "move", move),
+    Function.spell(2, "spell", spell)
 ]
 
 # Create IntEnum of function names/ids so printing the id will show something useful.
@@ -259,7 +281,7 @@ class FunctionCall(collections.namedtuple(
             function: A function name or id, to be converted into a function id enum.
             arguments: An iterable of function arguments. Arguments that are enum
                 types can be passed by name. Arguments that only take on value (ie
-                not a point) don't neeed to be wrapped in a list.
+                not a point) don't need to be wrapped in a list.
             raw: Whether this is a raw function call.
 
         Returns:

@@ -49,11 +49,11 @@ def main(unused_argv):
         human_observer=True,
         cooldowns_enabled=False) as env:
         agents = [
-            scripted_agent.ScriptedAgent()
+            random_agent.RandomAgent()
         ]
         
         # episodes = 2
-        steps = 400
+        steps = 100
         run_loop.run_loop(agents, env, max_steps=steps)
 
 def entry_point():

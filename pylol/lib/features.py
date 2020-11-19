@@ -183,8 +183,10 @@ class Features(object):
         """Return the list of available action ids."""
         available_actions = set()
         obs_available_actions = obs["available_actions"]
+        print("AVAILABLE ACTIONS:", obs_available_actions)
         if obs_available_actions["can_no_op"]: available_actions.add(0)
         if obs_available_actions["can_move"]: available_actions.add(1)
+        if obs_available_actions["can_spell_0"]: available_actions.add(2)
         """
         print("FUNCTIONS AVAILABLE:", actions.FUNCTIONS_AVAILABLE)
         for i, func in six.iteritems(actions.FUNCTIONS_AVAILABLE):

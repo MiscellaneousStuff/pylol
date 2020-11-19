@@ -161,6 +161,12 @@ class RemoteController(object):
                 y = action["move_range"].y - (action["move_range"].y / 2)
                 print("player_move", playerId, x, y)
                 self.player_move(playerId, x, y)
+            elif action["type"] == "spell":
+                playerId = 1
+                spell_slot = action["spell"]
+                x = action["position"].x
+                y = action["position"].y
+                self.player_spell(playerId, 2, spell_slot, x, y)
 
     def act(self, action):
         """Send a single action. This is a shortcut for `actions`."""

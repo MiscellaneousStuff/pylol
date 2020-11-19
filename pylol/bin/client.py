@@ -34,25 +34,27 @@ point_flag.DEFINE_point("feature_map_size", "16000",
                         "Resolution for screen feature layers.")
 point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
+flags.DEFINE_string("players", "Ezreal.BLUE,Lucian.PURPLE", "")
 flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
 
 def main(unused_argv):
+    players = []
+    agents = []
+
+    for player in FLAGS.players.split(","):
+        c, t = player.split(".")
+        players.append(lol_env.Agent(champion=c, team=t))
+        agents.append(random_agent.RandomAgent())
+    
     with lol_env.LoLEnv(
         map_name=FLAGS.map,
-        players=[
-            lol_env.Agent(champion="Ezreal", team="BLUE"),
-            lol_env.Agent(champion="Ezreal", team="PURPLE")
-        ],
+        players=players,
         agent_interface_format=lol_env.parse_agent_interface_format(
             feature_map=FLAGS.feature_map_size,
             feature_move_range=FLAGS.feature_move_range
         ),
         human_observer=True,
-        cooldowns_enabled=True) as env:
-        agents = [
-            random_agent.RandomAgent(),
-            random_agent.RandomAgent()
-        ]
+        cooldowns_enabled=False) as env:
         
         # episodes = 2
         steps = 500

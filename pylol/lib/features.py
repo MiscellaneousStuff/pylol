@@ -159,7 +159,6 @@ class Features(object):
         self._agent_interface_format = agent_interface_format
         aif = self._agent_interface_format
 
-        print("AIF:", aif)
         self._valid_functions = _init_valid_functions(aif.action_dimensions)
     
     def observation_spec(self):
@@ -284,15 +283,15 @@ def _init_valid_functions(action_dimensions):
         actions.ArgumentType.spec(t.id, t.name, sizes.get(t.name, t.sizes))
         for t in actions.TYPES])
     
-    print("TYPES:", types)
-    print("actions.Functions:", actions.Functions)
-    print("actions.FUNCTIONS:", list(actions.FUNCTIONS))
+    #print("TYPES:", types)
+    #print("actions.Functions:", actions.Functions)
+    #print("actions.FUNCTIONS:", list(actions.FUNCTIONS))
 
     items = [
         actions.Function.spec(f.id, f.name, tuple(types[t.id] for t in f.args))
         for f in actions.FUNCTIONS]
 
-    print("items:", items)
+    # print("items:", items)
 
     functions = actions.Functions(items)
     

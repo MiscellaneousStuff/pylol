@@ -199,7 +199,6 @@ class Functions(object):
         functions = sorted(functions, key=lambda f: f.id)
         self._func_list = functions
         self._func_dict = {f.name: f for f in functions}
-        print("FUNC DICT:", self._func_dict.keys())
         if len(self._func_dict) != len(self._func_list):
             raise ValueError("Function names must be unique.")
     

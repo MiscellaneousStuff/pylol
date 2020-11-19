@@ -36,7 +36,6 @@ class RandomAgent(base_agent.BaseAgent):
 
         print("ID, ARGS", function_id, self.action_spec.functions[function_id].args)
 
-
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
                 for arg in self.action_spec.functions[function_id].args]
         return actions.FunctionCall(function_id, args)

@@ -24,8 +24,7 @@
 from absl import flags
 from absl import app
 
-from pylol.agents import scripted_agent
-from pylol.agents import base_agent, random_agent
+from pylol.agents import base_agent, random_agent, scripted_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.lib import point_flag
@@ -35,7 +34,7 @@ point_flag.DEFINE_point("feature_map_size", "16000",
                         "Resolution for screen feature layers.")
 point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
-flags.DEFINE_string("map", "New Summoners Rift", "Name of league map to use.")
+flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
 
 def main(unused_argv):
     with lol_env.LoLEnv(
@@ -49,13 +48,13 @@ def main(unused_argv):
         ),
         human_observer=True,
         cooldowns_enabled=False) as env:
-        random_agents = [
-            random_agent.RandomAgent()
+        agents = [
+            scripted_agent.ScriptedAgent()
         ]
         
         # episodes = 2
-        steps = 100
-        run_loop.run_loop(random_agents, env, max_steps=steps)
+        steps = 400
+        run_loop.run_loop(agents, env, max_steps=steps)
 
 def entry_point():
     app.run(main)

@@ -27,11 +27,10 @@ from pylol import maps
 
 def main(unused_argv):
     print(maps.get_maps())
-    """
+    
     for _, map_class in sorted(maps.get_maps().items()):
         mp = map_class()
         print(mp)
-    """
 
 if __name__ == "__main__":
     app.run(main)

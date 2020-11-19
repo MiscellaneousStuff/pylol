@@ -257,7 +257,7 @@ class LoLEnv(environment.Base):
     def save_replay(self, replay_dir, prefix=None):
         """Saves a replay to a custom replay file."""
         if prefix is None:
-            prefix = self._map_name
+            prefix = self._map_name.replace(" ", "_")
         replay_path = self._run_config.save_replay(
             self._controllers[0].save_replay(), replay_dir, prefix
         )

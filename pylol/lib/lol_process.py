@@ -65,15 +65,19 @@ class LoLProcess(object):
 
         human_count = 1 if kwargs["human_observer"] else 0
         agent_count = len(kwargs["players"]) - human_count
+        multiplier = 7.5
+
         args = [
             exec_path,
             "--host", self.host,
             "--port", self.port,
             "--human_count", str(human_count),
             "--agent_count", str(agent_count),
-            "--multiplier", "7.5"
+            "--multiplier", str(multiplier)
         ]
 
+        kwargs["multiplier"] = multiplier
+        
         try:
             self.controller = remote_controller.RemoteController(
                 None, self.host, None, timeout_seconds=timeout_seconds, proc=self, kwargs=kwargs)

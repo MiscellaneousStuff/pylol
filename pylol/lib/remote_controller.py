@@ -251,10 +251,13 @@ class RemoteController(object):
 
     def save_replay(self):
         """Save a replay, returning the data."""
+        players = ",".join(["{0}.{1}".format(player.champ, player.team)
+                            for player in self._kwargs["players"]])
+
         command = {
-            "map": str("map"),
-            "players": str("players"),
-            "multiplier": float(7.5)
+            "map": str(self._kwargs["map_name"]),
+            "players": str(players),
+            "multiplier": float(self._kwargs["multiplier"])
         }
         self.r.lpush("command", "save_replay")
         self.r.lpush("command", json.dumps(command))
@@ -266,7 +269,7 @@ class RemoteController(object):
         
         replay_json = replay_json[1].decode("utf-8")
         return replay_json
-
+        
 def start_client(host="localhost", port="5119", playerId="1"):
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [

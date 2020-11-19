@@ -96,7 +96,6 @@ class RunConfig(object):
         if not Exists(replay_dir):
             MakeDirs(replay_dir)
         replay_path = os.path.join(replay_dir, replay_filename)
-        print("REPLAY DATA:", replay_data)
         with Open(replay_path, "w") as f:
             f.write(replay_data)
         return replay_path

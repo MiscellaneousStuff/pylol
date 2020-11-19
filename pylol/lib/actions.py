@@ -29,8 +29,8 @@ import numpy
 from pylol.lib import point
 import six
 
-def no_op(action):
-    action.fill("no_op")
+def no_op(action, **kwargs):
+    action.fill("no_op", **kwargs)
 
 def move(action, **kwargs):
     action.fill("move", **kwargs)

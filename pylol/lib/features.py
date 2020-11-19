@@ -186,7 +186,13 @@ class Features(object):
         print("AVAILABLE ACTIONS:", obs_available_actions)
         if obs_available_actions["can_no_op"]: available_actions.add(0)
         if obs_available_actions["can_move"]: available_actions.add(1)
-        if obs_available_actions["can_spell_0"]: available_actions.add(2)
+        if  obs_available_actions["can_spell_0"] or \
+            obs_available_actions["can_spell_1"] or \
+            obs_available_actions["can_spell_2"] or \
+            obs_available_actions["can_spell_3"] or \
+            obs_available_actions["can_spell_4"] or \
+            obs_available_actions["can_spell_5"]:
+            available_actions.add(2)
         """
         print("FUNCTIONS AVAILABLE:", actions.FUNCTIONS_AVAILABLE)
         for i, func in six.iteritems(actions.FUNCTIONS_AVAILABLE):
@@ -251,6 +257,11 @@ class Features(object):
         kwargs = {type_.name: type_.fn(a)
               for type_, a in zip(func.args, func_call.arguments)}
         
+        # Get the issuers user_id from the observation
+        for champ_unit in obs["champ_units"]:
+            if champ_unit["distance_to_me"] == 0.0:
+                kwargs["user_id"] = champ_unit["user_id"]
+
         # redis magic...
         lol_action = common.Action()
 

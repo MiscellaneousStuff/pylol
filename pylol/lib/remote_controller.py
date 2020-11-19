@@ -156,13 +156,12 @@ class RemoteController(object):
             if action["type"] == "no_op":
                 pass
             elif action["type"] == "move":
-                playerId = 1
-                x = action["move_range"].x - (action["move_range"].x / 2)
-                y = action["move_range"].y - (action["move_range"].y / 2)
-                print("player_move", playerId, x, y)
+                playerId = action["user_id"]
+                x = action["move_range"].x - 4
+                y = action["move_range"].y - 4
                 self.player_move(playerId, x, y)
             elif action["type"] == "spell":
-                playerId = 1
+                playerId = action["user_id"]
                 spell_slot = action["spell"]
                 x = action["position"].x
                 y = action["position"].y
@@ -204,7 +203,7 @@ class RemoteController(object):
         self.r.lpush("action", "")
 
     def player_move(self, player_id, x, y):
-        print("player_move: ", id, x, y, self.r)
+        #print("player_move: ", id, x, y, self.r)
         action = {
             "player_id": str(player_id),
             "x": float(x * 100.0),

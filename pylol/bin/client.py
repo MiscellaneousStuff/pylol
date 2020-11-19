@@ -41,19 +41,21 @@ def main(unused_argv):
         map_name=FLAGS.map,
         players=[
             lol_env.Agent(champion="Ezreal", team="BLUE"),
+            lol_env.Agent(champion="Ezreal", team="PURPLE")
         ],
         agent_interface_format=lol_env.parse_agent_interface_format(
             feature_map=FLAGS.feature_map_size,
             feature_move_range=FLAGS.feature_move_range
         ),
         human_observer=True,
-        cooldowns_enabled=False) as env:
+        cooldowns_enabled=True) as env:
         agents = [
+            random_agent.RandomAgent(),
             random_agent.RandomAgent()
         ]
         
         # episodes = 2
-        steps = 100
+        steps = 500
         run_loop.run_loop(agents, env, max_steps=steps)
 
 def entry_point():

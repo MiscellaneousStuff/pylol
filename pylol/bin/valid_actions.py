@@ -22,19 +22,34 @@
 """Print the valid actions."""
 
 from absl import app
-#from absl import flags
+from absl import flags
 
 from pylol.lib import actions
 from pylol.lib import features
+from pylol.lib import point_flag
+
+FLAGS = flags.FLAGS
+point_flag.DEFINE_point("feature_map_size", "16000",
+                        "Resolution for screen feature layers.")
+point_flag.DEFINE_point("feature_move_range", "8",
+                        "Resolution for screen feature layers.")
 
 def main(unused_argv):
     """Print the valid actions."""
-    feats = features.Features()
+    feats = features.Features(
+        features.AgentInterfaceFormat(
+            feature_dimensions=features.Dimensions(
+                map=FLAGS.feature_map_size,
+                move_range=FLAGS.feature_move_range
+            )
+        )
+    )
     action_spec = feats.action_spec()
     flattened = 0
+    count = 0
     for func in action_spec.functions:
         count += 1
-        act_flat += 1
+        act_flat = 1
         for arg in func.args:
             for size in arg.sizes:
                 act_flat *= size

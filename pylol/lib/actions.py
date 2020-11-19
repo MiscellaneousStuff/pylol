@@ -32,8 +32,8 @@ import six
 def no_op(action):
     action.fill("no_op")
 
-def move_to(action, **kwargs):
-    action.fill("move_to", **kwargs)
+def move(action, **kwargs):
+    action.fill("move", **kwargs)
 
 def numpy_to_python(val):
     """Convert numpy types to their corresponding python types."""
@@ -99,11 +99,12 @@ class ArgumentType(collections.namedtuple(
         """Create an ArgumentType to be used in ValidActions."""
         return cls(id_, name, sizes, None, None)
         
-class Arguments(collections.namedtuple("Arguments", ["position"])):
+class Arguments(collections.namedtuple("Arguments", ["move_range", "position"])):
     """The full list of argument types.
 
     Attributes:
-        map: A point of the map.
+        move_range: Relative units away from current position in 100s of units.
+        position: A point on the map.
     """
     __slots__ = ()
 
@@ -119,18 +120,19 @@ class Arguments(collections.namedtuple("Arguments", ["position"])):
 
 # List of types.
 TYPES = Arguments.types(
-    position=ArgumentType.point()
+    position=ArgumentType.point(),
+    move_range=ArgumentType.point()
 )
 
 # Argument types for different functions.
 FUNCTION_TYPES = {
     no_op: [],
-    move_to: [TYPES.position]
+    move: [TYPES.move_range]
 }
 
 POINT_REQUIRED_FUNCS = {
     False: {},
-    True: {move_to}}
+    True: {move}}
 
 class Function(collections.namedtuple(
     "Function", ["id", "name", "function_type", "args", "avail_fn"])):
@@ -227,7 +229,7 @@ class Functions(object):
 
 _FUNCTIONS = [
     Function.no_op(0, "no_op", no_op),
-    Function.move(1, "move_to", move_to)
+    Function.move(1, "move", move)
 ]
 
 # Create IntEnum of function names/ids so printing the id will show something useful.

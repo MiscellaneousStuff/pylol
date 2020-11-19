@@ -155,10 +155,11 @@ class RemoteController(object):
             action = action.props
             if action["type"] == "no_op":
                 pass
-            elif action["type"] == "move_to":
+            elif action["type"] == "move":
                 playerId = 1
-                x = int((action["position"].x / 16000.0) * 8) - 4
-                y = int((action["position"].y / 16000.0) * 8) - 4
+                x = action["move_range"].x - (action["move_range"].x / 2)
+                y = action["move_range"].y - (action["move_range"].y / 2)
+                print("player_move", playerId, x, y)
                 self.player_move(playerId, x, y)
 
     def act(self, action):

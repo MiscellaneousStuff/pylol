@@ -21,11 +21,6 @@
 # SOFTWARE.
 """Helper functions for lib modules which don't belong anywhere else."""
 
-"""
-args = [[numpy.random.randint(0, size) for size in arg.sizes]
-                for arg in self.action_spec.functions[function_id].args]
-"""
-
 import json
 
 from pylol.env import lol_env

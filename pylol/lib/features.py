@@ -56,7 +56,7 @@ class AgentInterfaceFormat(object):
     def action_dimensions(self):
         return self._action_dimensions
 
-def parse_agent_interface_format(feature_map=None):
+def parse_agent_interface_format(feature_map=None, feature_move_range=None):
     """Creates an AgentInterfaceFormat object from keyword args.
 
     Convenient when using dictionaries or command-line arguments for config.
@@ -69,6 +69,7 @@ def parse_agent_interface_format(feature_map=None):
 
     Args:
         feature_map: Map dimensions.
+        feature_move_range: Range of movement (divided by 100) the agent can move.
     
     Returns:
         An `AgentInterfaceFormat` object.
@@ -76,10 +77,9 @@ def parse_agent_interface_format(feature_map=None):
     Raises:
     ValueError: If an invalid parameter is specified.
     """
-    if feature_map:
-        feature_dimensions = Dimensions(feature_map)
-    else:
-        feature_dimensions = None
+    if feature_map and feature_move_range:
+        feature_dimensions = Dimensions(feature_map,
+            feature_move_range)
     
     return AgentInterfaceFormat(feature_dimensions=feature_dimensions)
 
@@ -113,23 +113,33 @@ class Dimensions(object):
 
     Attributes:
         map: A (width, height) int tuple or a single int to be used.
+        move_range: A (width, height) int tuple or a single int to be used.
     """
 
-    def __init__(self, map=None):
+    def __init__(self, map=None, move_range=None):
         if not map:
             raise ValueError("map must be set, map={}".format(map))
+            
+        if not move_range:
+            raise ValueError("move_range must be set, move_range={}".format(move_range))
     
         self._map = _to_point(map)
+        self._move_range = _to_point(move_range)
 
     @property
     def map(self):
         return self._map
     
+    @property
+    def move_range(self):
+        return self._move_range
+    
     def __repr__(self):
-        return "Dimensions(map={})".format(self._map)
+        return "Dimensions(map={}, move_range={})".format(self._map, self._move_range)
 
     def __eq__(self, other):
-        return (isinstance(other, Dimensions) and self._map == other._map)
+        return (isinstance(other, Dimensions) and self._map == other._map and
+                self._move_range == other._move_range)
 
     def __ne__(self, other):
         return not self == other
@@ -222,6 +232,9 @@ class Features(object):
         for t, arg in zip(func.args, func_call.arguments):
             if t.name in ("position"):
                 sizes = aif.action_dimensions.map
+            elif t.name in ("move_range"):
+                sizes = aif.action_dimensions.move_range
+                print("SIZES COUSIN:", sizes)
             else:
                 sizes = t.sizes
             if len(sizes) != len(arg):
@@ -263,7 +276,8 @@ class Features(object):
 def _init_valid_functions(action_dimensions):
     """Initialize ValidFunctions and set up the callbacks."""
     sizes = {
-        "position": tuple(int(i) for i in action_dimensions.map)
+        "position": tuple(int(i) for i in action_dimensions.map),
+        "move_range": tuple(int(i) for i in action_dimensions.move_range)
     }
 
     types = actions.Arguments(*[

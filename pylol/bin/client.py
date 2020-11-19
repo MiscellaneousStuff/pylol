@@ -33,31 +33,26 @@ from pylol.lib import point_flag
 FLAGS = flags.FLAGS
 point_flag.DEFINE_point("feature_map_size", "16000",
                         "Resolution for screen feature layers.")
-point_flag.DEFINE_point("feature_move_range", "-4, 4",
+point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
+flags.DEFINE_string("map", "New Summoners Rift", "Name of league map to use.")
 
 def main(unused_argv):
     with lol_env.LoLEnv(
-        map_name="New Summoners Rift",
+        map_name=FLAGS.map,
         players=[
-            lol_env.Agent(champion="Ezreal", team="BLUE")
+            lol_env.Agent(champion="Ezreal", team="BLUE"),
         ],
         agent_interface_format=lol_env.parse_agent_interface_format(
             feature_map=FLAGS.feature_map_size,
+            feature_move_range=FLAGS.feature_move_range
         ),
         human_observer=True,
         cooldowns_enabled=False) as env:
-        scripted_agents = [
-            scripted_agent.ScriptedAgent(id=1, team="BLUE", env=env._controllers[0])
-        ]
         random_agents = [
             random_agent.RandomAgent()
         ]
-        """
-        base_agents = [
-            base_agent.BaseAgent()
-        ]
-        """
+        
         # episodes = 2
         steps = 100
         run_loop.run_loop(random_agents, env, max_steps=steps)

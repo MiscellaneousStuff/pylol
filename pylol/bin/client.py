@@ -59,7 +59,7 @@ def main(unused_argv):
         cooldowns_enabled=False) as env:
 
         # episodes = 2
-        steps = 50
+        steps = 100
         run_loop.run_loop(agents, env, max_steps=steps)
         if FLAGS.save_replay:
             env.save_replay(agents[0].__class__.__name__)

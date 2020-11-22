@@ -46,4 +46,19 @@ class BaseAgent(object):
     def step(self, obs):
         self.steps += 1
         self.reward += obs.reward
+
+        """
+        user_id = None
+        print("BASE AGENT OBS")
+        for champ_unit in obs.observation["observation"]["champ_units"]:
+            if champ_unit["distance_to_me"] == 0.0:
+                user_id = champ_unit["user_id"]
+        """
+        
+        """
+        print("\n")
+        print("ID, PLAYER_ID, ARGS", 0, user_id, [])
+        print("\n")
+        """
+        
         return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])

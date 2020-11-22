@@ -38,10 +38,16 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
     steps = 0
     start_time = time.time()
 
-    observation_spec = env.observation_spec()
-    action_spec = env.action_spec()
+    observation_spec = [env.observation_spec() for _ in agents]
+    action_spec = [env.action_spec() for _ in agents]
+    
     for agent, obs_spec, act_spec in zip(agents, observation_spec, action_spec):
         agent.setup(obs_spec, act_spec)
+    
+    """
+    for agent in agents:
+        agent.setup(observation_spec, action_spec)
+    """
 
     try:
         while not max_episodes or total_episodes < max_episodes:
@@ -57,6 +63,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
                 print("STEP:", steps)
                 actions = [agent.step(timestep)
                            for agent, timestep in zip(agents, timesteps)]
+                print("ALL ACTIONS DURING STEP:", actions, agents, list(zip(agents, timesteps)))
                 #
                 if timesteps[0].last():
                     break

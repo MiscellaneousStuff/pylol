@@ -162,13 +162,19 @@ class LoLEnv(environment.Base):
         if self._state == environment.StepType.LAST:
             return self.reset()
         
+        """
         actions = [[f.transform_action(o["observation"], a)
                     for a in to_list(acts)]
                    for f, o, acts in zip(self._features, self._obs, actions)]
-        # print("Transformed Actions:", actions)
+        """
+
+        new_actions = []
+        for o, a in zip(self._obs, actions):
+            print("CURRENT OBS ENV STEP:", o)
+            new_actions.append(self._features[0].transform_action(o["observation"], a))
 
         for c, a in zip(self._controllers, actions):
-            c.actions(common.RequestAction(actions=a))
+            c.actions(common.RequestAction(actions=new_actions))
 
         self._state = environment.StepType.MID
         return self._step()
@@ -195,7 +201,7 @@ class LoLEnv(environment.Base):
                 discount=1.0,
                 observation=obs
             ))
-            obs = CustomObs(obs)
+            # obs = CustomObs(obs)
             agent_obs = f.transform_obs(obs)
             return obs, agent_obs
 
@@ -204,13 +210,15 @@ class LoLEnv(environment.Base):
         res = []
         for c, f in zip(self._controllers, self._features):
             print("c, f:", c, f)
-            res.append(tuple(c, f))
-        print("_get_observations.res:", res)
+            # res.append(tuple(c, f))
+            self._obs, self._agent_obs = __observe(c, f)
+        # print("_get_observations.res:", res)
         """
-        obs = self._controllers[0].observe()
-        # print("_get_observations.obs:", obs)
-        agent_obs = self._features[0].transform_obs(obs)
-        self._obs, self._agent_obs = [obs], [agent_obs]
+
+        obs = [self._controllers[0].observe() for _ in self.players]
+        #obs = [self._controllers[0].observe()]
+        agent_obs = [self._features[0].transform_obs(o) for o in obs]
+        self._obs, self._agent_obs = obs, agent_obs
 
     def _observe(self):
         self._get_observations()
@@ -227,6 +235,7 @@ class LoLEnv(environment.Base):
             observation=o
         ) for r, o in zip(reward, self._agent_obs))
 
+        print("REWARD, AGENT OBS:", reward, self._agent_obs)
         # print("RET VAL:", ret_val)
         #print("RET VAL.observation:", ret_val[0].observation)
 

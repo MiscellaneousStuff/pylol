@@ -278,6 +278,7 @@ class Features(object):
         # print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
 
         # Set available actions
+        # print("OBS:", obs)
         obs["available_actions"] = np.array(
           self.available_actions(obs["observation"]), dtype=np.int32)
 

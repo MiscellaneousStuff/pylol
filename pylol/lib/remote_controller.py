@@ -165,7 +165,7 @@ class RemoteController(object):
             action = action.props
             if action["type"] == "no_op":
                 playerId = action["user_id"]
-                self.player_noop(playerId)
+                self.player_noop()
             elif action["type"] == "move":
                 playerId = action["user_id"]
                 x = action["move_range"].x - 4

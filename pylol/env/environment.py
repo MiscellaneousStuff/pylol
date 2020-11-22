@@ -114,7 +114,7 @@ class Base(object):
 
     @abc.abstractmethod
     def action_spec(self):
-        """Defines the actions that should be provded to `step`.
+        """Defines the actions that should be provided to `step`.
 
         Returns:
             A tuple of specs (one per agent), where each spec is something that

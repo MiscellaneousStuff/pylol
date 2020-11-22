@@ -100,6 +100,12 @@ class LoLProcess(object):
             logging.execution("Failed to launch")
             raise LoLLaunchError("Failed to launch: %s" % args)
     
+    def __enter__(self):
+        return self.controller
+
+    def __exit__(self, unused_exception_type, unused_exc_value, unused_traceback):
+        self.close()
+
     def close(self):
         """Shut down the game and clean up."""
         if hasattr(self, "controller") and self.controller:

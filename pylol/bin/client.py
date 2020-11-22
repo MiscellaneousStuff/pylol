@@ -37,6 +37,7 @@ point_flag.DEFINE_point("feature_move_range", "8",
 flags.DEFINE_string("players", "Ezreal.BLUE,Lucian.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
+flags.DEFINE_bool("run_client", False, "Whether to run the league client or not.")
 
 def main(unused_argv):
     players = []
@@ -54,7 +55,7 @@ def main(unused_argv):
             feature_map=FLAGS.feature_map_size,
             feature_move_range=FLAGS.feature_move_range
         ),
-        human_observer=False,
+        human_observer=FLAGS.run_client,
         cooldowns_enabled=False) as env:
 
         # episodes = 2

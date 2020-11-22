@@ -235,13 +235,13 @@ class Features(object):
         
         # Args are valid?
         aif = self._agent_interface_format
-        print("FUNC:", func.args, func_call.arguments)
+        # print("FUNC:", func.args, func_call.arguments)
         for t, arg in zip(func.args, func_call.arguments):
             if t.name in ("position"):
                 sizes = aif.action_dimensions.map
             elif t.name in ("move_range"):
                 sizes = aif.action_dimensions.move_range
-                print("SIZES COUSIN:", sizes)
+                # print("SIZES COUSIN:", sizes)
             else:
                 sizes = t.sizes
             if len(sizes) != len(arg):

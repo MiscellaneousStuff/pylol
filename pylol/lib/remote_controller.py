@@ -110,6 +110,15 @@ class RemoteController(object):
                 print("`game_started` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `game_started` message from GameServer")
 
+    def send_raw_action(self, action):
+        # print("action data:", action)
+
+        action_type = action["action_type"]
+        action_data = action["action_data"]
+
+        self.r.lpush("action", action_type)
+        self.r.lpush("action", action_data)
+
     # Check if someone died for this observation
     def someone_died(self, observation):
         champ_units = observation["champ_units"]
@@ -125,9 +134,10 @@ class RemoteController(object):
         if self._last_obs == None:
             self.r.delete("action") # Reset action pipe
             self.r.delete("observation") # Reset observation pipe
+            self.r.delete("command")
             self.r.lpush("command", "start_observing") # Start observing
 
-            self.players_reset()
+            # self.players_reset()
 
         # Get the observation
         json_txt = self.r.brpop("observation", self.timeout)
@@ -154,7 +164,8 @@ class RemoteController(object):
         for action in req_action.actions:
             action = action.props
             if action["type"] == "no_op":
-                pass
+                playerId = action["user_id"]
+                self.player_noop(playerId)
             elif action["type"] == "move":
                 playerId = action["user_id"]
                 x = action["move_range"].x - 4
@@ -176,7 +187,7 @@ class RemoteController(object):
         """Shut down the redis process."""
         self.r = None
         self._proc.kill()
-    
+
     def player_attack(self, player_id, target_player_id):
         action = {
             "player_id": str(player_id),
@@ -184,6 +195,7 @@ class RemoteController(object):
         }
         self.r.lpush("action", "attack")
         self.r.lpush("action", json.dumps(action))
+        
         return {"type": "attack", "data": action}
 
     def player_spell(self, player_id, target_player_id, spell_slot, x, y):

@@ -165,7 +165,7 @@ class LoLEnv(environment.Base):
         actions = [[f.transform_action(o["observation"], a)
                     for a in to_list(acts)]
                    for f, o, acts in zip(self._features, self._obs, actions)]
-        print("Transformed Actions:", actions)
+        # print("Transformed Actions:", actions)
 
         for c, a in zip(self._controllers, actions):
             c.actions(common.RequestAction(actions=a))
@@ -219,7 +219,7 @@ class LoLEnv(environment.Base):
         #       ... later on
         reward = [0] * self._num_agents
 
-        print("lol_env._observe.self._agent_obs :=", self._agent_obs)
+        # print("lol_env._observe.self._agent_obs :=", self._agent_obs)
         ret_val = tuple(environment.TimeStep(
             step_type=self._state,
             reward=r,
@@ -227,7 +227,7 @@ class LoLEnv(environment.Base):
             observation=o
         ) for r, o in zip(reward, self._agent_obs))
 
-        print("RET VAL:", ret_val)
+        # print("RET VAL:", ret_val)
         #print("RET VAL.observation:", ret_val[0].observation)
 
         self._episode_steps += 1

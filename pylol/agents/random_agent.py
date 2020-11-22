@@ -33,9 +33,16 @@ class RandomAgent(base_agent.BaseAgent):
         super(RandomAgent, self).step(obs)
         available_actions = obs.observation["available_actions"]
         function_id = numpy.random.choice(available_actions)
-
-        print("ID, ARGS", function_id, self.action_spec.functions[function_id].args)
-
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
                 for arg in self.action_spec.functions[function_id].args]
+
+        user_id = None
+        for champ_unit in obs.observation["observation"]["champ_units"]:
+            if champ_unit["distance_to_me"] == 0.0:
+                user_id = champ_unit["user_id"]
+
+        #print("ID, ARGS", function_id, args)
+        print("\n")
+        print("ID, PLAYER_ID, ARGS", function_id, user_id, args)
+        print("\n")
         return actions.FunctionCall(function_id, args)

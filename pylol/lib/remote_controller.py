@@ -54,20 +54,39 @@ class RemoteController(object):
     """
 
     def __init__(self, settings, host, port, timeout_seconds, proc=None, kwargs=[]):
+        self._kwargs = kwargs
+
         timeout_seconds = timeout_seconds # or FLAGS.lol_timeout
         host = host or "192.168.0.16"
         port = port or 6379
         self.host = host
         self.port = port
-        self.pool = redis.ConnectionPool(host=host, port=port, db=0)
+        print("CONNECTING TO REDIS ON:", host, self._kwargs["redis_port"])
+        self.pool = redis.ConnectionPool(host=host, port=self._kwargs["redis_port"], db=0)
         self.r = redis.Redis(connection_pool=self.pool)
         self.timeout = timeout_seconds
         self.settings = settings
         self._last_obs = None
         self._client = None
-        self._kwargs = kwargs
+
+        if "client_host" in kwargs:
+            self._kwargs["client_host"] = self._kwargs["client_host"]
+        else:
+            self._kwargs["client_host"] = "192.168.0.16"
+        
+        if "client_port" in kwargs:
+            self._kwargs["client_port"] = self._kwargs["client_port"]
+        else:
+            self._kwargs["client_port"] = "5119"
+
+        print("REDIS PORT:", self._kwargs["redis_port"])
+        
         try:
-            self._proc = subprocess.Popen(["redis-server", "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf"])
+            arr = ["redis-server",
+                "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf",
+                "--port",
+                str(self._kwargs["redis_port"])]
+            self._proc = subprocess.Popen(arr)
         except SubprocessError as e:
             print("Could not open redis. Error message: '%s'" % e)
     
@@ -89,7 +108,10 @@ class RemoteController(object):
             if command == "clients_join":
                 print("`clients_join` == START CLIENT:", command)
                 if self._kwargs["human_observer"]:
-                    self._client = start_client(host=self.host)
+                    print("STARTING LOL ON:", self._kwargs["client_host"], self._kwargs["client_port"])
+                    self._client = start_client(
+                        host=self._kwargs["client_host"],
+                        port=self._kwargs["client_port"])
                 else:
                     self._client = None
             else:
@@ -285,7 +307,8 @@ class RemoteController(object):
         replay_json = replay_json[1].decode("utf-8")
         return replay_json
         
-def start_client(host="localhost", port="5119", playerId="1"):
+def start_client(host="192.168.0.16", port="5119", playerId="1"):
+    print("LOL CLIENT HOST, PORT:", host, port)
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [
         "./League of Legends.exe",

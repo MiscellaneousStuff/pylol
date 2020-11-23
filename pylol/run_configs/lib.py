@@ -23,6 +23,7 @@
 
 import datetime
 import os
+import uuid
 
 Exists = os.path.exists
 IsDirectory = os.path.isdir
@@ -90,7 +91,7 @@ class RunConfig(object):
             replay_filename = prefix + "_"
         
         now = datetime.datetime.utcnow().replace(microsecond=0)
-        replay_filename += "%s.json" % now.isoformat("-").replace(":", "-")
+        replay_filename += "%s.json" % (now.isoformat("-").replace(":", "-") + "-" + str(uuid.uuid4()))
         replay_dir = self.abs_replay_path(replay_dir)
 
         if not Exists(replay_dir):

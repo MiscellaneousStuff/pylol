@@ -63,6 +63,8 @@ class LoLProcess(object):
         self.port = port or "5119"
         self._run_config = run_config
 
+        print("kwargs process:", kwargs)
+
         human_count = 1 if kwargs["human_observer"] else 0
         agent_count = len(kwargs["players"]) - human_count
         multiplier = 7.5
@@ -70,10 +72,11 @@ class LoLProcess(object):
         args = [
             exec_path,
             "--host", self.host,
-            "--port", self.port,
+            "--port", str(kwargs["client_port"]),
+            "--redis_port", str(kwargs["redis_port"]),
             "--human_count", str(human_count),
             "--agent_count", str(agent_count),
-            "--multiplier", str(multiplier)
+            "--multiplier", str(multiplier),
         ]
 
         kwargs["multiplier"] = multiplier

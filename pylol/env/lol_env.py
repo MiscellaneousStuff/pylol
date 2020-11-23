@@ -33,6 +33,7 @@ from pylol import run_configs
 from pylol.env import environment
 from pylol.lib import features
 from pylol.lib import common
+from pylol.lib import portspicker
 
 def to_list(arg):
     return arg if isinstance(arg, list) else [arg]
@@ -123,6 +124,14 @@ class LoLEnv(environment.Base):
 
     def _launch_game(self, **kwargs):
         """Actually launch the GameServer."""
+
+        # Reserve some ports
+        self._ports = portspicker.pick_contiguous_unused_ports(2)
+        logging.info("Ports used for GameServer and Redis respectively: %s", self._ports)
+
+        kwargs["client_port"] = self._ports[0]
+        kwargs["redis_port"] = self._ports[1]
+
         self._lol_procs = [self._run_config.start(**kwargs)]
         self._controllers = [p.controller for p in self._lol_procs]
     
@@ -189,6 +198,8 @@ class LoLEnv(environment.Base):
             for p in self._lol_procs:
                 p.close()
             self.lol_procs = None
+        if hasattr(self, "_ports") and self._ports:
+            portspicker.return_ports(self._ports)
         self._game_info = None
     
     def _get_observations(self):

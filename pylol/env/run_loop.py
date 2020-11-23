@@ -32,6 +32,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
     # Connect
     controller = env._controllers[0]
     controller.connect()
+    # controller.players_reset()
 
     # A run loop for agent/environment interaction
     total_episodes = 0
@@ -43,16 +44,13 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
     
     for agent, obs_spec, act_spec in zip(agents, observation_spec, action_spec):
         agent.setup(obs_spec, act_spec)
-    
-    """
-    for agent in agents:
-        agent.setup(observation_spec, action_spec)
-    """
 
     try:
         while not max_episodes or total_episodes < max_episodes:
             total_episodes += 1
             timesteps = env.reset()
+            controller.player_teleport(1, 7500.0, 7500.0)
+            print("TELEPORTING 1st PLAYER")
             # print("TIMESTEPS:", timesteps)
             for a in agents:
                 a.reset()
@@ -63,7 +61,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
                 print("STEP:", steps)
                 actions = [agent.step(timestep)
                            for agent, timestep in zip(agents, timesteps)]
-                print("ALL ACTIONS DURING STEP:", actions, agents, list(zip(agents, timesteps)))
+                # print("ALL ACTIONS DURING STEP:", actions, agents, list(zip(agents, timesteps)))
                 #
                 if timesteps[0].last():
                     break

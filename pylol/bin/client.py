@@ -34,10 +34,13 @@ point_flag.DEFINE_point("feature_map_size", "16000",
                         "Resolution for screen feature layers.")
 point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
-flags.DEFINE_string("players", "Ezreal.BLUE,Lucian.PURPLE", "Formatted list of champions and teams")
+flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 flags.DEFINE_bool("run_client", False, "Whether to run the league client or not.")
+flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
+flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
+flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 
 def main(unused_argv):
     players = []
@@ -46,7 +49,10 @@ def main(unused_argv):
     for player in FLAGS.players.split(","):
         c, t = player.split(".")
         players.append(lol_env.Agent(champion=c, team=t))
-        agents.append(random_agent.RandomAgent())
+        if FLAGS.agent == "random":
+            agents.append(random_agent.RandomAgent())
+        elif FLAGS.agent == "scripted":
+            agents.append(scripted_agent.ScriptedAgent())
     
     with lol_env.LoLEnv(
         map_name=FLAGS.map,
@@ -58,9 +64,8 @@ def main(unused_argv):
         human_observer=FLAGS.run_client,
         cooldowns_enabled=False) as env:
 
-        # episodes = 2
-        steps = 100
-        run_loop.run_loop(agents, env, max_steps=steps)
+        run_loop.run_loop(agents, env, max_episodes=FLAGS.max_episodes,
+                          max_steps=FLAGS.max_steps)
         if FLAGS.save_replay:
             env.save_replay(agents[0].__class__.__name__)
 

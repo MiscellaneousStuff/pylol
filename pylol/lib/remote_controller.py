@@ -109,7 +109,10 @@ class RemoteController(object):
             else:
                 print("`game_started` == WRONG MESSAGE:", command)
                 raise ConnectionError("Couldn't get `game_started` message from GameServer")
-
+        
+        # Reset pipes after connecting
+        self.r.delete("action") # Reset action pipe
+        
     def send_raw_action(self, action):
         # print("action data:", action)
 
@@ -132,7 +135,6 @@ class RemoteController(object):
 
         # Start observing if we haven't already.
         if self._last_obs == None:
-            self.r.delete("action") # Reset action pipe
             self.r.delete("observation") # Reset observation pipe
             self.r.delete("command")
             self.r.lpush("command", "start_observing") # Start observing
@@ -211,6 +213,7 @@ class RemoteController(object):
         return {"type": "spell", "data": action}
 
     def players_reset(self):
+        print("RESETTING PLAYERS")
         self.r.lpush("action", "reset")
         self.r.lpush("action", "")
 

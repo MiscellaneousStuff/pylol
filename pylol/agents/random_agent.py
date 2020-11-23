@@ -41,5 +41,7 @@ class RandomAgent(base_agent.BaseAgent):
         for champ_unit in obs.observation["observation"]["champ_units"]:
             if champ_unit["distance_to_me"] == 0.0:
                 user_id = champ_unit["user_id"]
-                
+            
+        print("RANDOM AGENT ACTION:", function_id, args)
+        
         return actions.FunctionCall(function_id, args)

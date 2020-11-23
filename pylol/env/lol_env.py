@@ -170,7 +170,7 @@ class LoLEnv(environment.Base):
 
         new_actions = []
         for o, a in zip(self._obs, actions):
-            print("CURRENT OBS ENV STEP:", o)
+            # print("CURRENT OBS ENV STEP:", o)
             new_actions.append(self._features[0].transform_action(o["observation"], a))
 
         for c, a in zip(self._controllers, actions):
@@ -227,6 +227,23 @@ class LoLEnv(environment.Base):
         #       ... later on
         reward = [0] * self._num_agents
 
+        # print("REWARD, AGENT OBS:", reward, self._agent_obs)
+        # print("RET VAL:", ret_val)
+        #print("RET VAL.observation:", ret_val[0].observation)
+
+        self._episode_steps += 1
+        self._total_steps += 1
+
+        # print("OBS => SOMEONE_DIED:", self._obs)
+
+        # Automatically make this LAST timestep if someone died as that is end of episode
+        if self._controllers[0].someone_died(self._obs[0]["observation"]):
+            # print("SOMEONE DIED LOL:", self._state)
+            if self._state == environment.StepType.MID:
+                self._state = environment.StepType.LAST
+            else:
+                self._state = environment.StepType.FIRST
+
         # print("lol_env._observe.self._agent_obs :=", self._agent_obs)
         ret_val = tuple(environment.TimeStep(
             step_type=self._state,
@@ -234,13 +251,6 @@ class LoLEnv(environment.Base):
             discount=1,
             observation=o
         ) for r, o in zip(reward, self._agent_obs))
-
-        print("REWARD, AGENT OBS:", reward, self._agent_obs)
-        # print("RET VAL:", ret_val)
-        #print("RET VAL.observation:", ret_val[0].observation)
-
-        self._episode_steps += 1
-        self._total_steps += 1
 
         return ret_val
 
@@ -257,6 +267,8 @@ class LoLEnv(environment.Base):
             self._restart()
         
         self._episode_count += 1
+
+        self._controllers[0].players_reset()
 
         logging.info("Starting episode %s: on %s" % (self._episode_count, self._map_name))
         self._state = environment.StepType.FIRST

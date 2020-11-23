@@ -59,6 +59,7 @@ setup(
         'numpy>=1.10',
         'six',
         'redis',
+        'portpicker'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

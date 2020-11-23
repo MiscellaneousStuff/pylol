@@ -30,8 +30,9 @@ from pylol.lib import features
 FUNCTIONS = actions.FUNCTIONS
 
 class ScriptedAgent(base_agent.BaseAgent):
-    """A random walk agent."""
+    """Throws Q's at the other player at the moment."""
 
     def step(self, obs):
         super(ScriptedAgent, self).step(obs)
-        return FUNCTIONS.move((1, 1))
+
+        return actions.FunctionCall(2, [[0], [8000, 8000]])

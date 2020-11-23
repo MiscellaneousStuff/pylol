@@ -49,7 +49,7 @@ setup(
         'pylol.agents',
         'pylol.bin',
         'pylol.env',
-        'pylol.libs',
+        'pylol.lib',
         'pylol.maps',
         'pylol.run_configs',
         'pylol.tests'

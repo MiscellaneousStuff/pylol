@@ -79,7 +79,7 @@ class RemoteController(object):
 
         try:
             arr = ["redis-server",
-                "--bind", str("0.0.0.0"),
+                "--bind", str(host),
                 "--port", str(self._kwargs["redis_port"])]
             print("REDIS ARGS:", arr)
             self._proc = subprocess.Popen(arr)

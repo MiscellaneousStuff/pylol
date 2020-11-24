@@ -70,7 +70,8 @@ class LoLEnv(environment.Base):
                  agent_interface_format=None,
                  replay_dir=None,
                  human_observer=False,
-                 cooldowns_enabled=False):
+                 cooldowns_enabled=False,
+                 config_path=""):
         """Create a League of Legends v4.20 Env.
 
         Args:
@@ -103,12 +104,26 @@ class LoLEnv(environment.Base):
         if not map_name:
             raise ValueError("Missing a map name.")
         
+        # Extract directories here
+        try:
+          with open(config_path) as f:
+            game_server_dir, client_dir = f.read().split("\n")
+            print("GAMESERVER DIR:", game_server_dir)
+            print("CLIENT DIR:", client_dir)
+        except:
+          raise IOError("Could not open config file: '%s'" % config_path)
+
         self._map_name = map_name
-        self._run_config = run_configs.get()
+        self._run_config = run_configs.get(game_server_dir)
         self._game_info = None
-        
-        self._launch_game(host=host, human_observer=human_observer, players=players,
-            map_name=map_name, cooldowns_enabled=cooldowns_enabled)
+
+        self._launch_game(host=host,
+                          human_observer=human_observer,
+                          players=players,
+                          map_name=map_name,
+                          cooldowns_enabled=cooldowns_enabled,
+                          game_server_dir=game_server_dir,
+                          client_dir=client_dir)
 
         self._finalize()
 
@@ -388,8 +403,8 @@ def LoLEnvSettingsGameInfo(
         "CHEATS_ENABLED":           cheats_enabled,
         "COOLDOWNS_ENABLED":        cooldowns_enabled,
         "MINION_SPAWNS_ENABLED":    minion_spawns_enabled,
-        # "CONTENT_PATH": "../../../../Content",
-        "CONTENT_PATH": "/mnt/c/LeagueSandbox/LeagueSandbox-RL-Learning/Content",
+        "CONTENT_PATH": "../../../../Content",
+        # "CONTENT_PATH": "/mnt/c/LeagueSandbox/LeagueSandbox-RL-Learning/Content",
         "IS_DAMAGE_TEXT_GLOBAL":    is_damage_text_global
     }
 

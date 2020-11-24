@@ -22,6 +22,7 @@
 """Controllers take actions and generates observations."""
 
 import sys
+import platform
 
 from absl import logging
 from absl import flags
@@ -75,12 +76,12 @@ class RemoteController(object):
             self._kwargs["client_port"] = "5119"
 
         print("REDIS PORT:", self._kwargs["redis_port"])
-        
+
         try:
             arr = ["redis-server",
-                "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/redis/redis.conf",
-                "--port",
-                str(self._kwargs["redis_port"])]
+                "--bind", str("0.0.0.0"),
+                "--port", str(self._kwargs["redis_port"])]
+            print("REDIS ARGS:", arr)
             self._proc = subprocess.Popen(arr)
         except SubprocessError as e:
             print("Could not open redis. Error message: '%s'" % e)
@@ -106,7 +107,8 @@ class RemoteController(object):
                     print("STARTING LOL ON:", self.host, self._kwargs["client_port"])
                     self._client = start_client(
                         host=self.host,
-                        port=self._kwargs["client_port"])
+                        port=self._kwargs["client_port"],
+                        client_dir=self._kwargs["client_dir"])
                 else:
                     self._client = None
             else:
@@ -302,8 +304,9 @@ class RemoteController(object):
         replay_json = replay_json[1].decode("utf-8")
         return replay_json
         
-def start_client(host="192.168.0.16", port="5119", playerId="1"):
-    print("LOL CLIENT HOST, PORT:", host, port)
+def start_client(host="192.168.0.16", port="5119", client_dir="", playerId="1"):
+    # client_path = "/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/"
+    print("LOL CLIENT HOST, PORT, CLIENT_PATH:", host, port, client_dir)
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [
         "./League of Legends.exe",
@@ -312,5 +315,8 @@ def start_client(host="192.168.0.16", port="5119", playerId="1"):
         "",
         "{0} {1} 17BLOhi6KZsTtldTsizvHg== {2}".format(host, port, playerId)
     ]
-    LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, cwd="/mnt/c/LeagueSandbox/League_Sandbox_Client/RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/")
+    if platform.system() == "Linux":
+      LeagueOfLegendsClientArgs.insert(0, "wine")
+
+    LeagueOfLegendsClient = subprocess.Popen(LeagueOfLegendsClientArgs, cwd=client_dir)
     return LeagueOfLegendsClient

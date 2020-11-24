@@ -37,11 +37,12 @@ class LocalBase(lib.RunConfig):
         self.exec_name = exec_name
         cwd = cwd and os.path.join(exec_dir, cwd)
         super(LocalBase, self).__init__(
-            replay_dir=os.path.join(exec_dir, "Replays"), cwd=cwd, env=env
-        )
+            replay_dir=os.path.join(exec_dir, "Replays"), cwd=cwd, env=env)
         
     def start(self, **kwargs):
         """Launch the game."""
+        print("Local Base kwargs:", kwargs)
+
         if not os.path.isdir(self.exec_dir):
             raise lol_process.LoLLaunchError(
                 "Failed to run  GameServer at '%s" % self.exec_dir)
@@ -70,9 +71,10 @@ class Windows(LocalBase):
 
 class Linux(LocalBase):
     """Config to run on Linux."""
-    def __init__(self):
-        exec_path = "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/"
-        super(Linux, self).__init__(exec_path, "./GameServerConsole", cwd=exec_path)
+    def __init__(self, exec_dir):
+        # print("LINUX EXEC DIR:", self.exec_dir)
+        # exec_dir = "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/"
+        super(Linux, self).__init__(exec_dir, "./GameServerConsole", cwd=exec_dir)
         
     @classmethod
     def priority(cls):

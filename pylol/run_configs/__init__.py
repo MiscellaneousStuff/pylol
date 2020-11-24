@@ -32,7 +32,7 @@ flags.DEFINE_string("lol_run_config", None,
 FLAGS = flags.FLAGS
 """
 
-def get():
+def get(game_server_dir):
     """Get the config chosen by flags."""
     configs = {c.name(): c
         for c in lib.RunConfig.all_subclasses() if c.priority()}
@@ -43,7 +43,7 @@ def get():
         raise lol_process.LoLLaunchError("No valid run_configs found.")
     
     #if FLAGS.lol_run_config is None:
-    return max(configs.values(), key=lambda c: c.priority())()
+    return max(configs.values(), key=lambda c: c.priority())(game_server_dir)
 
     """
     try:

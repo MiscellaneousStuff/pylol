@@ -125,3 +125,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore local config path, needs to be set before using package
+config_dirs.txt

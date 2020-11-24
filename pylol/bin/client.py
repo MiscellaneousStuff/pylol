@@ -21,6 +21,8 @@
 # SOFTWARE.
 """Test run the client."""
 
+import os
+
 from absl import flags
 from absl import app
 
@@ -42,10 +44,13 @@ flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
+flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of gameserver, lol client and redis conf respectively")
 
 def main(unused_argv):
     players = []
     agents = []
+
+    print(os.getcwd())
 
     for player in FLAGS.players.split(","):
         c, t = player.split(".")
@@ -66,7 +71,8 @@ def main(unused_argv):
             feature_move_range=FLAGS.feature_move_range
         ),
         human_observer=FLAGS.run_client,
-        cooldowns_enabled=False) as env:
+        cooldowns_enabled=False,
+        config_path=FLAGS.config_path) as env:
 
         run_loop.run_loop(agents, env, max_episodes=FLAGS.max_episodes,
                           max_steps=FLAGS.max_steps)

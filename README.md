@@ -20,3 +20,14 @@ Within the demonstration, you can try different agents by changing the "--agent"
 parameter to either random, base or scripted. Random will choose random actions
 from the action space uniformly, base will just issue no-ops (i.e. no operation,
 it will do nothing) and scripted will have the agents just attack each other.
+
+## Get PyLoL
+
+### From Source
+
+You can install PyLoL from a local clone of the git repo:
+
+```shell
+git clone https://github.com/MiscellaneousStuff/pylol.git
+pip3 install --upgrade pylol/
+```

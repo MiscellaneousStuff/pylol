@@ -64,6 +64,7 @@ class LoLEnv(environment.Base):
     lib/features.py
     """
     def __init__(self,
+                 host=None,
                  map_name=None,
                  players=None,
                  agent_interface_format=None,
@@ -78,6 +79,9 @@ class LoLEnv(environment.Base):
             players: A list of Agent instances that specify who will play.
             replay_dir: Directory for the custom replay file to save to.
         """
+
+        if not host:
+            raise ValueError("You must specify a host.")
 
         if not players:
             raise ValueError("You must specify the list of players.")
@@ -103,7 +107,7 @@ class LoLEnv(environment.Base):
         self._run_config = run_configs.get()
         self._game_info = None
         
-        self._launch_game(human_observer=human_observer, players=players,
+        self._launch_game(host=host, human_observer=human_observer, players=players,
             map_name=map_name, cooldowns_enabled=cooldowns_enabled)
 
         self._finalize()
@@ -129,6 +133,7 @@ class LoLEnv(environment.Base):
         self._ports = portspicker.pick_contiguous_unused_ports(2)
         logging.info("Ports used for GameServer and Redis respectively: %s", self._ports)
 
+        kwargs["host"] = kwargs["host"]
         kwargs["client_port"] = self._ports[0]
         kwargs["redis_port"] = self._ports[1]
 

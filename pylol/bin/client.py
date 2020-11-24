@@ -41,6 +41,7 @@ flags.DEFINE_bool("run_client", False, "Whether to run the league client or not.
 flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
+flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
 
 def main(unused_argv):
     players = []
@@ -57,6 +58,7 @@ def main(unused_argv):
             agents.append(scripted_agent.ScriptedAgent())
     
     with lol_env.LoLEnv(
+        host=FLAGS.host,
         map_name=FLAGS.map,
         players=players,
         agent_interface_format=lol_env.parse_agent_interface_format(

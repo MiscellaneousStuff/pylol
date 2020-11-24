@@ -37,6 +37,7 @@ flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
+flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
 
 def main(unused_argv):
     parallel = run_parallel.RunParallel()
@@ -46,7 +47,8 @@ def main(unused_argv):
     "--max_steps", str(FLAGS.max_steps),
     "--max_episodes", str(FLAGS.max_episodes),
     "--agent", str(FLAGS.agent),
-    "--players", str(FLAGS.players)]
+    "--players", str(FLAGS.players),
+    "--host", str(FLAGS.host)]
 
     try:
         parallel.run((subprocess.Popen, args) for _ in range(FLAGS.count))

@@ -68,11 +68,6 @@ class RemoteController(object):
         self.settings = settings
         self._last_obs = None
         self._client = None
-
-        if "client_host" in kwargs:
-            self._kwargs["client_host"] = self._kwargs["client_host"]
-        else:
-            self._kwargs["client_host"] = "192.168.0.16"
         
         if "client_port" in kwargs:
             self._kwargs["client_port"] = self._kwargs["client_port"]
@@ -83,7 +78,7 @@ class RemoteController(object):
         
         try:
             arr = ["redis-server",
-                "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/League of Python/redis.conf",
+                "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/redis/redis.conf",
                 "--port",
                 str(self._kwargs["redis_port"])]
             self._proc = subprocess.Popen(arr)
@@ -108,9 +103,9 @@ class RemoteController(object):
             if command == "clients_join":
                 print("`clients_join` == START CLIENT:", command)
                 if self._kwargs["human_observer"]:
-                    print("STARTING LOL ON:", self._kwargs["client_host"], self._kwargs["client_port"])
+                    print("STARTING LOL ON:", self.host, self._kwargs["client_port"])
                     self._client = start_client(
-                        host=self._kwargs["client_host"],
+                        host=self.host,
                         port=self._kwargs["client_port"])
                 else:
                     self._client = None

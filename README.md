@@ -14,10 +14,9 @@ send an email to [raokosan@gmail.com](mailto:raokosan@gmail.com).
 
 The easiest way to try pylol at the moment is to visit this Google Colab:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiscellaneousStuff/pylol/blob/colab/League_of_Legends_v4_20_Deep_Reinforcement_Learning_Agent.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiscellaneousStuff/pylol/blob/main/demonstration.ipynb)
 
-It doesn't do much at the moment apart from to demonstrate that everything
-loads from this repository properly and that the GameServer works without
-any human clients connected to it. The implementation has only been properly
-tested for a single agent playing at the moment but will be changed very
-soon.
+Within the demonstration, you can try different agents by changing the "--agent"
+parameter to either random, base or scripted. Random will choose random actions
+from the action space uniformly, base will just issue no-ops (i.e. no operation,
+it will do nothing) and scripted will have the agents just attack each other.

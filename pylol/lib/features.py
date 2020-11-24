@@ -33,6 +33,43 @@ from pylol.lib import named_array
 from pylol.lib import point
 from pylol.lib import common
 
+class ChampUnit(enum.IntEnum):
+    """Indices into the `ChampUnit` observation."""
+    user_id		        = 0
+    position_x		    = 1
+    position_y          = 2
+    facing_angle		= 3
+    max_hp		        = 4
+    current_hp		    = 5
+    hp_regen		    = 6
+    max_mp		        = 7
+    current_mp		    = 8
+    mp_regen		    = 9
+    attack_damage		= 10
+    attack_speed		= 11
+    alive		        = 12
+    level		        = 13
+    armor		        = 14
+    mr		            = 15
+    current_gold		= 16
+    death_count		    = 17
+    move_speed		    = 18
+    my_team		        = 19
+    neutal		        = 20
+    dx_to_me		    = 21
+    dy_to_me		    = 22
+    distance_to_me		= 23
+    q_cooldown		    = 24
+    q_level		        = 25
+    w_cooldown	    	= 26
+    w_level		        = 27
+    e_cooldown	    	= 28
+    e_level		        = 29
+    r_cooldown	    	= 30
+    r_level		        = 31
+    sum_1_cooldown		= 32
+    sum_2_cooldown		= 33
+
 class AgentInterfaceFormat(object):
     """Observation and action interface format specific to a particular agent."""
     
@@ -168,9 +205,22 @@ class Features(object):
             The dict of observation names 
         """
 
+        aif = self._agent_interface_format
+
         obs_spec = named_array.NamedDict({
-            "game_time": (1,)
+            "game_time": (0,)
         })
+        
+        """
+        if aif.feature_dimensions:
+            obs_spec["feature_map"] = (len(MAP_FEATURES),
+                                       aif.feature_dimensions.map.x,
+                                       aif.feature_dimensions.map.y)
+            obs_spec["feature_move_range"] = (len(MOVE_RANGE_FEATURES),
+                                       aif.feature_dimensions.move_range.x,
+                                       aif.feature_dimensions.move_range.y)
+        """
+
         obs_spec["available_actions"] = (0,)
 
         return obs_spec
@@ -272,19 +322,84 @@ class Features(object):
 
     def transform_obs(self, obs):
         """Render some GameServer observations into something an agent can handle."""
-        #out = named_array.NamedDict({})
+        # Get agents user id
+        me_id = None
+        enemy_id = None
+        me_unit = None
+        enemy_unit = None
+        for champ_unit in obs["observation"]["champ_units"]:
+            if champ_unit["distance_to_me"] == 0.0:
+                me_id = champ_unit["user_id"]
+                me_unit = champ_unit
+            else:
+                enemy_id = champ_unit["user_id"]
+                enemy_unit = champ_unit
 
-        # print("OBS BLUD:", obs["observation"]["game_time"])
-        # print("AVAILABLE ACTIONS BTW:", self.available_actions(obs["observation"]))
+        # Observations of champion units in the game
+        champ_units = [named_array.NamedNumpyArray([
+            champ_unit["user_id"],
+            champ_unit["position"]["X"],
+            champ_unit["position"]["Y"],
+            champ_unit["facing_angle"],
+            champ_unit["max_hp"],
+            champ_unit["current_hp"],
+            champ_unit["hp_regen"],
+            champ_unit["max_mp"],
+            champ_unit["current_mp"],
+            champ_unit["mp_regen"],
+            champ_unit["attack_damage"],
+            champ_unit["attack_speed"]	,
+            champ_unit["alive"],
+            champ_unit["level"],
+            champ_unit["armor"],
+            champ_unit["mr"],
+            champ_unit["current_gold"],
+            champ_unit["death_count"],
+            champ_unit["move_speed"],
+            champ_unit["my_team"],
+            champ_unit["neutal"],
+            champ_unit["dx_to_me"],
+            champ_unit["dy_to_me"],
+            champ_unit["distance_to_me"],
+            champ_unit["q_cooldown"],
+            champ_unit["q_level"],
+            champ_unit["w_cooldown"],
+            champ_unit["w_level"],
+            champ_unit["e_cooldown"],
+            champ_unit["e_level"],
+            champ_unit["r_cooldown"],
+            champ_unit["r_level"],
+            champ_unit["sum_1_cooldown"],
+            champ_unit["sum_2_cooldown"]
+        ], names=ChampUnit, dtype=np.float32) for champ_unit in obs["observation"]["champ_units"]]
+
+        # Observation output
+        out = named_array.NamedDict({
+            "my_id": int(me_id),
+            "game_time": float(obs["observation"]["game_time"]),
+            "me_unit": champ_units[0 if me_id == 1 else 1],
+            "enemy_unit": champ_units[0 if enemy_id == 1 else 1]
+        })
+
+        # Print original observation
+        # print("transform_obs().obs:", obs)
 
         # Set available actions
-        # print("OBS:", obs)
-        obs["available_actions"] = np.array(
+        out["available_actions"] = np.array(
           self.available_actions(obs["observation"]), dtype=np.int32)
 
-        # obs["available_actions"] = np.array(self.available_actions(obs["observation"]))
-        # print("NEW OBS:", obs)
-        return obs
+        # Print output
+        """
+        print("transform_obs().out", out["enemy_unit"])
+        print("champ unit 1 (x, y):",
+              champ_units[0].dx_to_me,
+              champ_units[0].dy_to_me)
+        print("champ unit 2 (x, y):",
+              champ_units[1].dx_to_me,
+              champ_units[1].dy_to_me)
+        """
+        
+        return out
 
 def _init_valid_functions(action_dimensions):
     """Initialize ValidFunctions and set up the callbacks."""

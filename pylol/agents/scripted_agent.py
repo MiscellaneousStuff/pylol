@@ -26,6 +26,7 @@ import numpy
 from pylol.agents import base_agent
 from pylol.lib import actions
 from pylol.lib import features
+from pylol.lib import point
 
 FUNCTIONS = actions.FUNCTIONS
 
@@ -34,5 +35,11 @@ class ScriptedAgent(base_agent.BaseAgent):
 
     def step(self, obs):
         super(ScriptedAgent, self).step(obs)
+        
+        me_position = point.Point(obs.observation["me_unit"].position_x,
+                       obs.observation["me_unit"].position_y)
 
-        return actions.FunctionCall(2, [[0], [8000, 8000]])
+        enemy_position = point.Point(obs.observation["enemy_unit"].position_x,
+                          obs.observation["enemy_unit"].position_y)
+
+        return actions.FunctionCall(2, [[0], enemy_position])

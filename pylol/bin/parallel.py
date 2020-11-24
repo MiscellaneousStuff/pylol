@@ -33,16 +33,20 @@ from pylol.lib import run_parallel
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer("count", 1, "Number of games to run at once")
+flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
+flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
+flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
+flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 
 def main(unused_argv):
     parallel = run_parallel.RunParallel()
 
     args = ["python3", 
     "-m", "pylol.bin.client", 
-    "--max_steps", "200",
-    "--agent", "random",
-    "--players",
-    "Ezreal.BLUE,Ezreal.BLUE,Ezreal.BLUE,Ezreal.BLUE,Ezreal.BLUE,Ezreal.PURPLE,Ezreal.PURPLE,Ezreal.PURPLE,Ezreal.PURPLE,Ezreal.PURPLE"]
+    "--max_steps", str(FLAGS.max_steps),
+    "--max_episodes", str(FLAGS.max_episodes),
+    "--agent", str(FLAGS.agent),
+    "--players", str(FLAGS.players)]
 
     try:
         parallel.run((subprocess.Popen, args) for _ in range(FLAGS.count))

@@ -49,7 +49,9 @@ def main(unused_argv):
     for player in FLAGS.players.split(","):
         c, t = player.split(".")
         players.append(lol_env.Agent(champion=c, team=t))
-        if FLAGS.agent == "random":
+        if FLAGS.agent == "base":
+            agents.append(base_agent.BaseAgent())
+        elif FLAGS.agent == "random":
             agents.append(random_agent.RandomAgent())
         elif FLAGS.agent == "scripted":
             agents.append(scripted_agent.ScriptedAgent())

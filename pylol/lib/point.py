@@ -55,7 +55,11 @@ class Point(collections.namedtuple("Point", ["x", "y"])):
     def abs(self):
         """Round `x` and `y` up to integers."""
         return Point(int(abs(self.x)), int(abs(self.y)))
-    
+
+    def normalized(self):
+        """Scale `x` and `y` in-between (0, 1)"""
+        return Point(self.x / self.len(), self.y / self.len())
+
     def len(self):
         """Length of the vector to this point."""
         return math.sqrt(self.x**2 + self.y**2)

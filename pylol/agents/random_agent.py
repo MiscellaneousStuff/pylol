@@ -31,17 +31,7 @@ class RandomAgent(base_agent.BaseAgent):
 
     def step(self, obs):
         super(RandomAgent, self).step(obs)
-        
-        function_id = numpy.random.choice(obs.observation["available_actions"])
-        
+        function_id = numpy.random.choice(obs.observation["available_actions"])        
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
-                for arg in self.action_spec[0].functions[function_id].args]
-
-        user_id = None
-        for champ_unit in obs.observation["observation"]["champ_units"]:
-            if champ_unit["distance_to_me"] == 0.0:
-                user_id = champ_unit["user_id"]
-            
-        print("RANDOM AGENT ACTION:", function_id, args)
-        
+                for arg in self.action_spec[0].functions[function_id].args]        
         return actions.FunctionCall(function_id, args)

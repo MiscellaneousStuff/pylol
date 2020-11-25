@@ -306,16 +306,22 @@ class LoLEnv(environment.Base):
         reward += gold_reward
         print("Gold Reward:", gold_reward)
 
-        # Health Changed (+2)
+        # Health Changed (+2) Zero-Sum
         hp_weighting = 2.0
-        def hp_change_to_reward(x):
-            return (x + 1 - (1 - x)**4) / 2
-        cur_hp_diff  = obs["me_unit"].current_hp / obs["me_unit"].max_hp
-        last_hp_diff = last_obs["me_unit"].current_hp / last_obs["me_unit"].max_hp
-        hp_diff = cur_hp_diff - last_hp_diff
-        hp_reward = hp_change_to_reward(hp_diff) * hp_weighting
+        def hp_change_to_reward(x): return (x + 1 - (1 - x)**4) / 2
+        me_cur_hp_diff  = obs["me_unit"].current_hp / obs["me_unit"].max_hp
+        me_last_hp_diff = last_obs["me_unit"].current_hp / last_obs["me_unit"].max_hp
+        me_hp_diff = me_cur_hp_diff - me_last_hp_diff
+        me_hp_reward = hp_change_to_reward(me_hp_diff) * hp_weighting
+
+        enemy_cur_hp_diff  = obs["enemy_unit"].current_hp / obs["enemy_unit"].max_hp
+        enemy_last_hp_diff = last_obs["enemy_unit"].current_hp / last_obs["enemy_unit"].max_hp
+        enemy_hp_diff = enemy_cur_hp_diff - enemy_last_hp_diff
+        enemy_hp_reward = -(hp_change_to_reward(enemy_hp_diff) * hp_weighting)
+
+        hp_reward = me_hp_reward + enemy_hp_reward
         reward += hp_reward
-        print("HP Reward:", hp_reward, last_obs["me_unit"].current_hp, obs["me_unit"].current_hp)
+        print("HP Reward:", hp_reward)
 
         # Mana Changed (+0.75)
         mana_weighting = 0.75
@@ -499,7 +505,6 @@ def LoLEnvSettingsGameInfo(
         "COOLDOWNS_ENABLED":        cooldowns_enabled,
         "MINION_SPAWNS_ENABLED":    minion_spawns_enabled,
         "CONTENT_PATH": "../../../../Content",
-        # "CONTENT_PATH": "/mnt/c/LeagueSandbox/LeagueSandbox-RL-Learning/Content",
         "IS_DAMAGE_TEXT_GLOBAL":    is_damage_text_global
     }
 

@@ -14,7 +14,7 @@ send an email to [raokosan@gmail.com](mailto:raokosan@gmail.com).
 
 The easiest way to try pylol at the moment is to visit this Google Colab:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiscellaneousStuff/pylol/blob/main/demonstration.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiscellaneousStuff/pylol-demo/blob/main/demonstration.ipynb)
 
 Within the demonstration, you can try different agents by changing the "--agent"
 parameter to either random, base or scripted. Random will choose random actions

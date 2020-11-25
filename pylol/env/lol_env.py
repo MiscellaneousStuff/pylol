@@ -296,10 +296,13 @@ class LoLEnv(environment.Base):
         reward += xp_reward
         print("XP Reward:", xp_reward)
         
-        # Gold Gained (+0.006)
+        # Gold Gained (+0.006) Zero-Sum
         gold_weighting = 0.006
-        gold_diff = obs["me_unit"].current_gold - last_obs["me_unit"].current_gold
-        gold_reward = gold_diff * gold_weighting
+        me_gold_diff = obs["me_unit"].current_gold - last_obs["me_unit"].current_gold
+        me_gold_reward = me_gold_diff * gold_weighting
+        enemy_gold_diff = obs["enemy_unit"].current_gold - last_obs["enemy_unit"].current_gold
+        enemy_gold_reward = -(enemy_gold_diff * gold_weighting)
+        gold_reward = me_gold_reward + enemy_gold_reward
         reward += gold_reward
         print("Gold Reward:", gold_reward)
 

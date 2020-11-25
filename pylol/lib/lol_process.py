@@ -94,8 +94,11 @@ class LoLProcess(object):
         try:
             # Write the config
             config_path = self._run_config.exec_dir + "./Settings/"
-            utils.write_config(config_path=config_path, players=kwargs["players"],
-                map_name=kwargs["map_name"], cooldowns_enabled=kwargs["cooldowns_enabled"])
+            utils.write_config(config_path=config_path,
+                               players=kwargs["players"],
+                               map_name=kwargs["map_name"],
+                               cooldowns_enabled=kwargs["cooldowns_enabled"],
+                               manacosts_enabled=kwargs["manacosts_enabled"])
 
             # Run the GameServer
             return subprocess.Popen(args, cwd=run_config.cwd, env=run_config.env)

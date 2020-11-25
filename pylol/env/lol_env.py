@@ -66,6 +66,7 @@ class LoLEnv(environment.Base):
                  replay_dir=None,
                  human_observer=False,
                  cooldowns_enabled=False,
+                 manacosts_enabled=False,
                  config_path=""):
         """Create a League of Legends v4.20 Env.
 
@@ -117,6 +118,7 @@ class LoLEnv(environment.Base):
                           players=players,
                           map_name=map_name,
                           cooldowns_enabled=cooldowns_enabled,
+                          manacosts_enabled=manacosts_enabled,
                           game_server_dir=game_server_dir,
                           client_dir=client_dir)
 
@@ -255,26 +257,61 @@ class LoLEnv(environment.Base):
     def calc_reward(self, last_obs, obs):
         """Returns the cumulative reward for an observation."""
 
+        if last_obs == None: return 0
+
         reward = 0
 
         # Winning (+5)
+        print("My Deaths, Enemy Deaths:",
+              obs["me_unit"].death_count, obs["enemy_unit"].death_count)
+        pass
 
         # Death (-1)
-        # print(obs)
+        print("Death:", 0 if obs["me_unit"].alive == 1.0 else 1)
+        pass
 
         # XP Gained (+0.002)
-
+        xp_weighting = 0.002
+        xp_diff = obs["me_unit"].current_xp - last_obs["me_unit"].current_xp
+        xp_reward = xp_diff * xp_weighting
+        reward += xp_reward
+        print("XP Reward:", xp_reward)
+        
         # Gold Gained (+0.006)
+        gold_weighting = 0.006
+        gold_diff = obs["me_unit"].current_gold - last_obs["me_unit"].current_gold
+        gold_reward = gold_diff * gold_weighting
+        reward += gold_reward
+        print("Gold Reward:", gold_reward)
 
         # Health Changed (+2)
+        hp_weighting = 2.0
+        def hp_change_to_reward(x):
+            return (x + 1 - (1 - x)**4) / 2
+        cur_hp_diff  = obs["me_unit"].current_hp / obs["me_unit"].max_hp
+        last_hp_diff = last_obs["me_unit"].current_hp / last_obs["me_unit"].max_hp
+        hp_diff = cur_hp_diff - last_hp_diff
+        hp_reward = hp_change_to_reward(hp_diff) * hp_weighting
+        reward += hp_reward
+        print("HP Reward:", hp_reward, last_obs["me_unit"].current_hp, obs["me_unit"].current_hp)
 
         # Mana Changed (+0.75)
+        mana_weighting = 0.75
+        cur_mp_diff  = obs["me_unit"].current_mp / obs["me_unit"].max_mp
+        last_mp_diff = last_obs["me_unit"].current_mp / last_obs["me_unit"].max_mp
+        mp_diff = cur_mp_diff - last_mp_diff
+        mp_reward = mp_diff * mana_weighting
+        reward += mp_reward
+        print("Mana:", mp_reward, last_obs["me_unit"].current_mp, obs["me_unit"].current_mp)
 
         # Killed Hero (-0.6)
+        print("Killed:", 0 if obs["enemy_unit"].alive == 1.0 else 1)
 
         # Lane Assignment (-0.15 * seconds out of assigned lane)
-
-        return 0
+        pass
+        
+        print("Reward:", reward, end = "\n\n")
+        return reward
 
     def _observe(self):
         self._get_observations()
@@ -285,7 +322,7 @@ class LoLEnv(environment.Base):
         else:
             reward = [self.calc_reward(last, cur) 
                       for last, cur in zip(self._last_agent_obs, self._agent_obs)]
-        print("CURRENT REWARD(s):", reward)
+        print("CURRENT REWARD(s):", reward, end = "\n\n\n")
 
         self._episode_steps += 1
         self._total_steps += 1

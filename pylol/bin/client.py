@@ -50,8 +50,6 @@ def main(unused_argv):
     players = []
     agents = []
 
-    print(os.getcwd())
-
     for player in FLAGS.players.split(","):
         c, t = player.split(".")
         players.append(lol_env.Agent(champion=c, team=t))

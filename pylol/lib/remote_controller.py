@@ -176,10 +176,12 @@ class RemoteController(object):
     
     def actions(self, req_action):
         """Send an action request, which may include multiple actions."""
+        """
         if FLAGS.lol_log_actions and req_action.actions:
             sys.stderr.write(" Sending actions ".center(60, ">") + "\n")
             for action in req_action.actions:
                 sys.stderr.write(str(action))
+        """
         
         """Actually perform the actions here."""
         for action in req_action.actions:

@@ -48,10 +48,7 @@ flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directo
 flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
 flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
 
-def main(unused_argv):
-    print("COOLDOWNS ENABLED:", FLAGS.enable_cooldowns)
-    print("MANACOSTS ENABLED:", FLAGS.manacosts_enabled)
-    
+def main(unused_argv):    
     players = []
     agents = []
 

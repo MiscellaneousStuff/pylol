@@ -48,11 +48,6 @@ class Agent(collections.namedtuple("Agent", ["champ", "team"])):
     def __new__(cls, champion, team):
         return super(Agent, cls).__new__(cls, champion, team)
 
-# This is temporary, get rid of it ASAP
-class CustomObs():
-    def __init__(self, obs):
-        self.observation = obs
-
 Dimensions = features.Dimensions
 AgentInterfaceFormat = features.AgentInterfaceFormat
 parse_agent_interface_format = features.parse_agent_interface_format
@@ -136,6 +131,7 @@ class LoLEnv(environment.Base):
             agent_interface_format=self._agent_interface_format
         )]
 
+        self._last_agent_obs = [None] * self._num_agents
         self._obs = [None] * self._num_agents
         self._agent_obs = [None] * self._num_agents
         self._state = environment.StepType.LAST
@@ -249,18 +245,47 @@ class LoLEnv(environment.Base):
         obs = [self._controllers[0].observe() for _ in self.players]
         #obs = [self._controllers[0].observe()]
         agent_obs = [self._features[0].transform_obs(o) for o in obs]
+        
+        # Save last observation to calculate rewards
+        self._last_agent_obs = self._agent_obs
+
+        # Set new observations
         self._obs, self._agent_obs = obs, agent_obs
+
+    def calc_reward(self, last_obs, obs):
+        """Returns the cumulative reward for an observation."""
+
+        reward = 0
+
+        # Winning (+5)
+
+        # Death (-1)
+        # print(obs)
+
+        # XP Gained (+0.002)
+
+        # Gold Gained (+0.006)
+
+        # Health Changed (+2)
+
+        # Mana Changed (+0.75)
+
+        # Killed Hero (-0.6)
+
+        # Lane Assignment (-0.15 * seconds out of assigned lane)
+
+        return 0
 
     def _observe(self):
         self._get_observations()
         
-        # NOTE: This is obviously temp for debugging, actually retrieve or calculate the reward
-        #       ... later on
-        reward = [0] * self._num_agents
-
-        # print("REWARD, AGENT OBS:", reward, self._agent_obs)
-        # print("RET VAL:", ret_val)
-        #print("RET VAL.observation:", ret_val[0].observation)
+        # Calc reward for current observation(s)
+        if self._episode_steps == 0:
+            reward = [0] * self._num_agents
+        else:
+            reward = [self.calc_reward(last, cur) 
+                      for last, cur in zip(self._last_agent_obs, self._agent_obs)]
+        print("CURRENT REWARD(s):", reward)
 
         self._episode_steps += 1
         self._total_steps += 1

@@ -38,6 +38,7 @@ flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
+flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of gameserver, lol client and redis conf respectively")
 
 def main(unused_argv):
     parallel = run_parallel.RunParallel()

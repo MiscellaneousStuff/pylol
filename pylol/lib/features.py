@@ -52,23 +52,24 @@ class ChampUnit(enum.IntEnum):
     armor		        = 14
     mr		            = 15
     current_gold		= 16
-    death_count		    = 17
-    move_speed		    = 18
-    my_team		        = 19
-    neutal		        = 20
-    dx_to_me		    = 21
-    dy_to_me		    = 22
-    distance_to_me		= 23
-    q_cooldown		    = 24
-    q_level		        = 25
-    w_cooldown	    	= 26
-    w_level		        = 27
-    e_cooldown	    	= 28
-    e_level		        = 29
-    r_cooldown	    	= 30
-    r_level		        = 31
-    sum_1_cooldown		= 32
-    sum_2_cooldown		= 33
+    current_xp          = 17
+    death_count		    = 18
+    move_speed		    = 19
+    my_team		        = 20
+    neutal		        = 21
+    dx_to_me		    = 22
+    dy_to_me		    = 23
+    distance_to_me		= 24
+    q_cooldown		    = 25
+    q_level		        = 26
+    w_cooldown	    	= 27
+    w_level		        = 28
+    e_cooldown	    	= 29
+    e_level		        = 30
+    r_cooldown	    	= 31
+    r_level		        = 32
+    sum_1_cooldown		= 33
+    sum_2_cooldown		= 34
 
 class AgentInterfaceFormat(object):
     """Observation and action interface format specific to a particular agent."""
@@ -354,6 +355,7 @@ class Features(object):
             champ_unit["armor"],
             champ_unit["mr"],
             champ_unit["current_gold"],
+            champ_unit["current_xp"],
             champ_unit["death_count"],
             champ_unit["move_speed"],
             champ_unit["my_team"],

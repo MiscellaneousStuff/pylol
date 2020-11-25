@@ -324,13 +324,20 @@ class LoLEnv(environment.Base):
         print("HP Reward:", hp_reward)
 
         # Mana Changed (+0.75)
-        mana_weighting = 0.75
-        cur_mp_diff  = obs["me_unit"].current_mp / obs["me_unit"].max_mp
-        last_mp_diff = last_obs["me_unit"].current_mp / last_obs["me_unit"].max_mp
-        mp_diff = cur_mp_diff - last_mp_diff
-        mp_reward = mp_diff * mana_weighting
+        mp_weighting = 0.75
+        me_cur_mp_diff  = obs["me_unit"].current_mp / obs["me_unit"].max_mp
+        me_last_mp_diff = last_obs["me_unit"].current_mp / last_obs["me_unit"].max_mp
+        me_mp_diff = me_cur_mp_diff - me_last_mp_diff
+        me_mp_reward = me_mp_diff * mp_weighting
+
+        enemy_cur_mp_diff  = obs["enemy_unit"].current_mp / obs["enemy_unit"].max_mp
+        enemy_last_mp_diff = last_obs["enemy_unit"].current_mp / last_obs["enemy_unit"].max_mp
+        enemy_mp_diff = enemy_cur_mp_diff - enemy_last_mp_diff
+        enemy_mp_reward = -(enemy_mp_diff * mp_weighting)
+
+        mp_reward = me_mp_reward + enemy_mp_reward
         reward += mp_reward
-        print("Mana:", mp_reward, last_obs["me_unit"].current_mp, obs["me_unit"].current_mp)
+        print("MP Reward:", mp_reward)
 
         # Killed Hero (+1, -0.6)
         kill_weighting = +1

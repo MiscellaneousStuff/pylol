@@ -260,17 +260,31 @@ class LoLEnv(environment.Base):
         reward = 0
 
         # Winning (+5)
-        print("My Deaths, Enemy Deaths:",
-              obs["me_unit"].death_count, obs["enemy_unit"].death_count)
-        pass
+        winning_weighting = 5.0
+        if self._state == environment.StepType.LAST: # Last observation for episode
+            if obs["me_unit"].kill_count > obs["enemy_unit"].kill_count:
+                winning_reward = winning_weighting
+            elif obs["me_unit"].kill_count < last_obs["enemy_unit"].kill_count:
+                winning_reward = -winning_weighting
+            else:
+                winning_reward = 0
+            reward += winning_reward
+            print("Winning Reward:",
+              winning_reward,
+              obs["me_unit"].kill_count,
+              obs["enemy_unit"].kill_count)
 
         # Death (-1)
-        if      obs["me_unit"].alive == 0.0 and \
-                last_obs["me_unit"].alive == 1.0:
-                death_reward = 1.0
-        else:   death_reward = 0.0
+        death_weighting = -1
+        if obs["me_unit"].death_count > last_obs["me_unit"].death_count:
+            death_reward = death_weighting
+        else:
+            death_reward = 0
         reward += death_reward
-        print("Death Reward:", death_reward)
+        print("Death Reward:",
+              death_reward,
+              last_obs["me_unit"].death_count,
+              obs["me_unit"].death_count)
 
         # XP Gained (+0.002)
         xp_weighting = 0.002
@@ -306,8 +320,17 @@ class LoLEnv(environment.Base):
         reward += mp_reward
         print("Mana:", mp_reward, last_obs["me_unit"].current_mp, obs["me_unit"].current_mp)
 
-        # Killed Hero (-0.6)
-        print("Killed:", 0 if obs["enemy_unit"].alive == 1.0 else 1)
+        # Killed Hero (+1, -0.6)
+        kill_weighting = +1
+        if obs["me_unit"].kill_count > last_obs["me_unit"].kill_count:
+            kill_diff = obs["me_unit"].kill_count - last_obs["me_unit"].kill_count
+            kill_reward = kill_diff * kill_weighting
+        else:
+            kill_reward = 0
+        reward += kill_reward
+        print("Kill Reward:", kill_reward,
+              last_obs["me_unit"].kill_count,
+              obs["me_unit"].kill_count)
 
         # Lane Assignment (-0.15 * seconds out of assigned lane)
         pass
@@ -318,6 +341,16 @@ class LoLEnv(environment.Base):
     def _observe(self):
         self._get_observations()
         
+        # Automatically make this LAST timestep if someone died as that is end of episode
+        # State needs to change before calculating rewards in we start next episode
+        if self._controllers[0].someone_died(self._obs[0]["observation"]):
+            # print("SOMEONE DIED LOL:", self._state)
+            if self._state == environment.StepType.MID:
+                self._state = environment.StepType.LAST
+            else:
+                self._last_agent_obs = [None] * self._num_agents
+                self._state = environment.StepType.FIRST
+
         # Calc reward for current observation(s)
         if self._episode_steps == 0:
             reward = [0] * self._num_agents
@@ -330,14 +363,6 @@ class LoLEnv(environment.Base):
         self._total_steps += 1
 
         # print("OBS => SOMEONE_DIED:", self._obs)
-
-        # Automatically make this LAST timestep if someone died as that is end of episode
-        if self._controllers[0].someone_died(self._obs[0]["observation"]):
-            # print("SOMEONE DIED LOL:", self._state)
-            if self._state == environment.StepType.MID:
-                self._state = environment.StepType.LAST
-            else:
-                self._state = environment.StepType.FIRST
 
         # print("lol_env._observe.self._agent_obs :=", self._agent_obs)
         ret_val = tuple(environment.TimeStep(

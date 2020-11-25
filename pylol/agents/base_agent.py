@@ -47,6 +47,6 @@ class BaseAgent(object):
         self.steps += 1
         self.reward += obs.reward
         
-        # print("CURRENT REWARD FOR EPISODE:", self.reward)
+        print("CURRENT REWARD FOR EPISODE:", self.reward)
         
         return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])

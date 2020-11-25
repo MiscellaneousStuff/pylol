@@ -259,7 +259,7 @@ class LoLEnv(environment.Base):
 
         reward = 0
 
-        # Winning (+5)
+        # Winning (+5) Zero-Sum
         winning_weighting = 5.0
         if self._state == environment.StepType.LAST: # Last observation for episode
             if obs["me_unit"].kill_count > obs["enemy_unit"].kill_count:
@@ -286,10 +286,13 @@ class LoLEnv(environment.Base):
               last_obs["me_unit"].death_count,
               obs["me_unit"].death_count)
 
-        # XP Gained (+0.002)
+        # XP Gained (+0.002) Zero-Sum
         xp_weighting = 0.002
-        xp_diff = obs["me_unit"].current_xp - last_obs["me_unit"].current_xp
-        xp_reward = xp_diff * xp_weighting
+        me_xp_diff = obs["me_unit"].current_xp - last_obs["me_unit"].current_xp
+        me_xp_reward = me_xp_diff * xp_weighting
+        enemy_xp_diff = obs["enemy_unit"].current_xp - last_obs["enemy_unit"].current_xp
+        enemy_xp_reward = -(enemy_xp_diff * xp_weighting)
+        xp_reward = me_xp_reward + enemy_xp_reward # Zero-Sum
         reward += xp_reward
         print("XP Reward:", xp_reward)
         

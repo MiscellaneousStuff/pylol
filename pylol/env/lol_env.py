@@ -257,8 +257,6 @@ class LoLEnv(environment.Base):
     def calc_reward(self, last_obs, obs):
         """Returns the cumulative reward for an observation."""
 
-        if last_obs == None: return 0
-
         reward = 0
 
         # Winning (+5)
@@ -267,8 +265,12 @@ class LoLEnv(environment.Base):
         pass
 
         # Death (-1)
-        print("Death:", 0 if obs["me_unit"].alive == 1.0 else 1)
-        pass
+        if      obs["me_unit"].alive == 0.0 and \
+                last_obs["me_unit"].alive == 1.0:
+                death_reward = 1.0
+        else:   death_reward = 0.0
+        reward += death_reward
+        print("Death Reward:", death_reward)
 
         # XP Gained (+0.002)
         xp_weighting = 0.002

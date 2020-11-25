@@ -70,10 +70,8 @@ class RemoteController(object):
         self._last_obs = None
         self._client = None
         
-        if "client_port" in kwargs:
-            self._kwargs["client_port"] = self._kwargs["client_port"]
-        else:
-            self._kwargs["client_port"] = "5119"
+        self._kwargs["client_port"] = self._kwargs["client_port"] if "client_port" in kwargs \
+                                      else "5119"
 
         print("REDIS PORT:", self._kwargs["redis_port"])
 

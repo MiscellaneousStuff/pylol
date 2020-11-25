@@ -29,7 +29,6 @@ def write_config(config_path, players, map_name, cooldowns_enabled, manacosts_en
     players = [lol_env.LoLEnvSettingsPlayer(i+1, i+1, player.champ, player.team)
                for i, player in enumerate(players)]
 
-    print("WRITE CONFIG MANACOSTS_ENABLED:", manacosts_enabled)
     settings = lol_env.LoLEnvSettings(players,
         game = lol_env.LoLEnvSettingsGame(map=lol_env.MAP[map_name]),
         gameInfo = lol_env.LoLEnvSettingsGameInfo(

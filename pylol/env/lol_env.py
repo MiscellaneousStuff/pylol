@@ -276,15 +276,16 @@ class LoLEnv(environment.Base):
 
         # Death (-1)
         death_weighting = -1
+        death_reward = 0
         if obs["me_unit"].death_count > last_obs["me_unit"].death_count:
-            death_reward = death_weighting
-        else:
+            death_reward += death_weighting
+        if obs["enemy_unit"].death_count > last_obs["enemy_unit"].death_count:
+            death_reward += -death_weighting
+        if obs["me_unit"].death_count == last_obs["me_unit"].death_count and \
+                obs["enemy_unit"].death_count == last_obs["enemy_unit"].death_count:
             death_reward = 0
         reward += death_reward
-        print("Death Reward:",
-              death_reward,
-              last_obs["me_unit"].death_count,
-              obs["me_unit"].death_count)
+        print("Death Reward:", death_reward)
 
         # XP Gained (+0.002) Zero-Sum
         xp_weighting = 0.002
@@ -341,18 +342,21 @@ class LoLEnv(environment.Base):
 
         # Killed Hero (+1, -0.6)
         kill_weighting = +1
+        kill_reward = 0
         if obs["me_unit"].kill_count > last_obs["me_unit"].kill_count:
             kill_diff = obs["me_unit"].kill_count - last_obs["me_unit"].kill_count
-            kill_reward = kill_diff * kill_weighting
-        else:
+            kill_reward += kill_diff * kill_weighting
+        if obs["enemy_unit"].kill_count > last_obs["enemy_unit"].kill_count:
+            kill_diff = obs["enemy_unit"].kill_count - last_obs["enemy_unit"].kill_count
+            kill_reward += -(kill_diff * kill_weighting)
+        if obs["me_unit"].kill_count == last_obs["me_unit"].kill_count and \
+                obs["enemy_unit"].kill_count == last_obs["enemy_unit"].kill_count:
             kill_reward = 0
         reward += kill_reward
-        print("Kill Reward:", kill_reward,
-              last_obs["me_unit"].kill_count,
-              obs["me_unit"].kill_count)
+        print("Kill Reward:", kill_reward)
 
         # Lane Assignment (-0.15 * seconds out of assigned lane)
-        pass
+        pass # Empty for now, not primary concern
         
         print("Reward:", reward, end = "\n\n")
         return reward

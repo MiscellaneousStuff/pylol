@@ -32,6 +32,9 @@ from absl import app
 from pylol.lib import run_parallel
 
 FLAGS = flags.FLAGS
+flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
+flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
+flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 flags.DEFINE_integer("count", 1, "Number of games to run at once")
 flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
@@ -47,6 +50,9 @@ def main(unused_argv):
 
     args = ["python3", 
     "-m", "pylol.bin.client", 
+    "--players", str(FLAGS.players),
+    "--map", str(FLAGS.map),
+    "--save_replay", str(FLAGS.save_replay),
     "--max_steps", str(FLAGS.max_steps),
     "--max_episodes", str(FLAGS.max_episodes),
     "--agent", str(FLAGS.agent),

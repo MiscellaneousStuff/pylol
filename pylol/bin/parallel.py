@@ -39,6 +39,8 @@ flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
 flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of gameserver, lol client and redis conf respectively")
+flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
+flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
 
 def main(unused_argv):
     parallel = run_parallel.RunParallel()
@@ -49,7 +51,9 @@ def main(unused_argv):
     "--max_episodes", str(FLAGS.max_episodes),
     "--agent", str(FLAGS.agent),
     "--players", str(FLAGS.players),
-    "--host", str(FLAGS.host)]
+    "--host", str(FLAGS.host),
+    "--enabled_cooldowns", str(FLAGS.enabled_cooldowns),
+    "--manacosts_enabled", str(FLAGS.manacosts_enabled)]
 
     try:
         parallel.run((subprocess.Popen, args) for _ in range(FLAGS.count))

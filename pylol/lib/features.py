@@ -210,7 +210,10 @@ class Features(object):
         aif = self._agent_interface_format
 
         obs_spec = named_array.NamedDict({
-            "game_time": (0,)
+            "my_id": (0,),
+            "game_time": (0,),
+            "me_unit": (len(ChampUnit),),
+            "enemy_unit": (len(ChampUnit),)
         })
         
         """
@@ -293,7 +296,6 @@ class Features(object):
                 sizes = aif.action_dimensions.map
             elif t.name in ("move_range"):
                 sizes = aif.action_dimensions.move_range
-                # print("SIZES COUSIN:", sizes)
             else:
                 sizes = t.sizes
             if len(sizes) != len(arg):
@@ -379,7 +381,7 @@ class Features(object):
 
         # Observation output
         out = named_array.NamedDict({
-            "my_id": int(me_id),
+            "my_id": float(me_id),
             "game_time": float(obs["observation"]["game_time"]),
             "me_unit": champ_units[0 if me_id == 1 else 1],
             "enemy_unit": champ_units[0 if enemy_id == 1 else 1]
@@ -391,17 +393,6 @@ class Features(object):
         # Set available actions
         out["available_actions"] = np.array(
           self.available_actions(obs["observation"]), dtype=np.int32)
-
-        # Print output
-        """
-        print("transform_obs().out", out["enemy_unit"])
-        print("champ unit 1 (x, y):",
-              champ_units[0].dx_to_me,
-              champ_units[0].dy_to_me)
-        print("champ unit 2 (x, y):",
-              champ_units[1].dx_to_me,
-              champ_units[1].dy_to_me)
-        """
         
         return out
 
@@ -415,18 +406,10 @@ def _init_valid_functions(action_dimensions):
     types = actions.Arguments(*[
         actions.ArgumentType.spec(t.id, t.name, sizes.get(t.name, t.sizes))
         for t in actions.TYPES])
-    
-    #print("TYPES:", types)
-    #print("actions.Functions:", actions.Functions)
-    #print("actions.FUNCTIONS:", list(actions.FUNCTIONS))
 
-    items = [
+    functions = actions.Functions([
         actions.Function.spec(f.id, f.name, tuple(types[t.id] for t in f.args))
-        for f in actions.FUNCTIONS]
-
-    # print("items:", items)
-
-    functions = actions.Functions(items)
+        for f in actions.FUNCTIONS])
     
     return actions.ValidActions(types, functions)
     

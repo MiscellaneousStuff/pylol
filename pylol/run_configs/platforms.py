@@ -54,26 +54,22 @@ class LocalBase(lib.RunConfig):
         
         return lol_process.LoLProcess(self, exec_path=exec_path, **kwargs)
 
-# """Run on windows.""" <- Put this above Windows.__init__ when finished debugging issue
-"""
 class Windows(LocalBase):
-    #def __init__(self, exec_path):
-    #    super(Windows, self).__init__(exec_path, "GameServerConsole.exe")
-
-    def __init__(self):
-        super(Windows, self).__init__("GameServerConsole.exe")
+    """Run on windows."""
+    def __init__(self, exec_dir):
+        super(Windows, self).__init__(exec_dir, "GameServerConsole.exe", cwd=exec_dir)
 
     @classmethod
     def priority(cls):
         if platform.system() == "Windows":
             return 1
-"""
+    
+    def start(self, **kwargs):
+        return super(Windows, self).start(**kwargs)
 
 class Linux(LocalBase):
     """Config to run on Linux."""
     def __init__(self, exec_dir):
-        # print("LINUX EXEC DIR:", self.exec_dir)
-        # exec_dir = "/mnt/c/Users/win8t/Desktop/AlphaLoL_AI/GameServerTest/LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/"
         super(Linux, self).__init__(exec_dir, "./GameServerConsole", cwd=exec_dir)
         
     @classmethod

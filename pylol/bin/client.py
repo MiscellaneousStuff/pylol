@@ -47,6 +47,7 @@ flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
 flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of GameServer, League client respectively")
 flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
 flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
+flags.DEFINE_bool("minion_spawns_enabled", False, "Toggles spawning of minions (default is False")
 
 def main(unused_argv):    
     players = []

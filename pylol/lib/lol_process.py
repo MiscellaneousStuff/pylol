@@ -98,7 +98,8 @@ class LoLProcess(object):
                                players=kwargs["players"],
                                map_name=kwargs["map_name"],
                                cooldowns_enabled=kwargs["cooldowns_enabled"],
-                               manacosts_enabled=kwargs["manacosts_enabled"])
+                               manacosts_enabled=kwargs["manacosts_enabled"],
+                               minion_spawns_enabled=kwargs["minion_spawns_enabled"])
 
             # Run the GameServer
             return subprocess.Popen(args, cwd=run_config.cwd, env=run_config.env)

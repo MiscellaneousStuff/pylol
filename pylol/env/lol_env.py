@@ -67,6 +67,7 @@ class LoLEnv(environment.Base):
                  human_observer=False,
                  cooldowns_enabled=False,
                  manacosts_enabled=False,
+                 minion_spawns_enabled=False,
                  config_path=""):
         """Create a League of Legends v4.20 Env.
 
@@ -119,6 +120,7 @@ class LoLEnv(environment.Base):
                           map_name=map_name,
                           cooldowns_enabled=cooldowns_enabled,
                           manacosts_enabled=manacosts_enabled,
+                          minion_spawns_enabled=minion_spawns_enabled,
                           game_server_dir=game_server_dir,
                           client_dir=client_dir)
 

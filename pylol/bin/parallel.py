@@ -39,7 +39,6 @@ flags.DEFINE_integer("count", 1, "Number of games to run at once")
 flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
-flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
 flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of gameserver, lol client and redis conf respectively")
 flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
@@ -58,8 +57,9 @@ def main(unused_argv):
     "--agent", str(FLAGS.agent),
     "--players", str(FLAGS.players),
     "--host", str(FLAGS.host),
-    "--enabled_cooldowns", str(FLAGS.enabled_cooldowns),
-    "--manacosts_enabled", str(FLAGS.manacosts_enabled)]
+    "--enable_cooldowns", str(FLAGS.enable_cooldowns),
+    "--manacosts_enabled", str(FLAGS.manacosts_enabled),
+    "--minion_spawns_enabled", str(FLAGS.minion_spawns_enabled)]
 
     try:
         parallel.run((subprocess.Popen, args) for _ in range(FLAGS.count))

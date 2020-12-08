@@ -287,7 +287,7 @@ class LoLEnv(environment.Base):
                 obs["enemy_unit"].death_count == last_obs["enemy_unit"].death_count:
             death_reward = 0
         reward += death_reward
-        print("Death Reward:", death_reward)
+        # print("Death Reward:", death_reward)
 
         # XP Gained (+0.002) Zero-Sum
         xp_weighting = 0.002
@@ -297,7 +297,7 @@ class LoLEnv(environment.Base):
         enemy_xp_reward = -(enemy_xp_diff * xp_weighting)
         xp_reward = me_xp_reward + enemy_xp_reward # Zero-Sum
         reward += xp_reward
-        print("XP Reward:", xp_reward)
+        # print("XP Reward:", xp_reward)
         
         # Gold Gained (+0.006) Zero-Sum
         gold_weighting = 0.006
@@ -307,7 +307,7 @@ class LoLEnv(environment.Base):
         enemy_gold_reward = -(enemy_gold_diff * gold_weighting)
         gold_reward = me_gold_reward + enemy_gold_reward
         reward += gold_reward
-        print("Gold Reward:", gold_reward)
+        # print("Gold Reward:", gold_reward)
 
         # Health Changed (+2) Zero-Sum
         hp_weighting = 2.0
@@ -324,7 +324,7 @@ class LoLEnv(environment.Base):
 
         hp_reward = me_hp_reward + enemy_hp_reward
         reward += hp_reward
-        print("HP Reward:", hp_reward)
+        # print("HP Reward:", hp_reward)
 
         # Mana Changed (+0.75)
         mp_weighting = 0.75
@@ -340,7 +340,7 @@ class LoLEnv(environment.Base):
 
         mp_reward = me_mp_reward + enemy_mp_reward
         reward += mp_reward
-        print("MP Reward:", mp_reward)
+        # print("MP Reward:", mp_reward)
 
         # Killed Hero (+1, -0.6)
         kill_weighting = +1
@@ -355,12 +355,12 @@ class LoLEnv(environment.Base):
                 obs["enemy_unit"].kill_count == last_obs["enemy_unit"].kill_count:
             kill_reward = 0
         reward += kill_reward
-        print("Kill Reward:", kill_reward)
+        # print("Kill Reward:", kill_reward)
 
         # Lane Assignment (-0.15 * seconds out of assigned lane)
         pass # Empty for now, not primary concern
         
-        print("Reward:", reward, end = "\n\n")
+        # print("Reward:", reward, end = "\n\n")
         return reward
 
     def _observe(self):
@@ -382,7 +382,7 @@ class LoLEnv(environment.Base):
         else:
             reward = [self.calc_reward(last, cur) 
                       for last, cur in zip(self._last_agent_obs, self._agent_obs)]
-        print("CURRENT REWARD(s):", reward, end = "\n\n\n")
+        # print("CURRENT REWARD(s):", reward, end = "\n\n\n")
 
         self._episode_steps += 1
         self._total_steps += 1

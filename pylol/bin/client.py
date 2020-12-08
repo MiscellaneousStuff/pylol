@@ -26,7 +26,7 @@ import os
 from absl import flags
 from absl import app
 
-from pylol.agents import base_agent, random_agent, scripted_agent
+from pylol.agents import base_agent, random_agent, scripted_agent, ppo_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.lib import point_flag
@@ -49,7 +49,7 @@ flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is Fals
 flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
 flags.DEFINE_bool("minion_spawns_enabled", False, "Toggles spawning of minions (default is False")
 
-def main(unused_argv):    
+def main(unused_argv):
     players = []
     agents = []
 
@@ -69,8 +69,7 @@ def main(unused_argv):
         players=players,
         agent_interface_format=lol_env.parse_agent_interface_format(
             feature_map=FLAGS.feature_map_size,
-            feature_move_range=FLAGS.feature_move_range
-        ),
+            feature_move_range=FLAGS.feature_move_range),
         human_observer=FLAGS.run_client,
         cooldowns_enabled=FLAGS.enable_cooldowns,
         manacosts_enabled=FLAGS.manacosts_enabled,

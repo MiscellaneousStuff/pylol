@@ -33,6 +33,8 @@ import json
 import subprocess
 from subprocess import SubprocessError
 
+import math
+
 flags.DEFINE_bool("lol_log_actions", False, "Print all actions sent to GameServer.")
 flags.DEFINE_integer("lol_timeout", 60, "Timeout to connect and wait for RPC responses.")
 FLAGS = flags.FLAGS
@@ -191,6 +193,7 @@ class RemoteController(object):
                 playerId = action["user_id"]
                 x = action["move_range"].x - 4
                 y = action["move_range"].y - 4
+                # print("SENDING MOVE COMMAND:", x, y)
                 self.player_move(playerId, x, y)
             elif action["type"] == "spell":
                 playerId = action["user_id"]
@@ -237,7 +240,7 @@ class RemoteController(object):
         self.r.lpush("action", "")
 
     def player_move(self, player_id, x, y):
-        #print("player_move: ", id, x, y, self.r)
+        # print("player_move: ", id, x, y, self.r)
         action = {
             "player_id": str(player_id),
             "x": float(x * 100.0),

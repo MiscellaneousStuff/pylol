@@ -1,3 +1,12 @@
+<div align="center">
+    <a href="https://www.youtube.com/watch?v=yVUKi63WfDA"
+       target="_blank">
+       <img src="http://img.youtube.com/vi/yVUKi63WfDA/0.jpg"
+            alt="Example PPO implementation in League of Legends"
+            width="240" height="180" border="10" />
+    </a>
+</div>
+
 # PyLoL - League of Legends v4.20 Learning Environment
 PyLoL is the Python component of the League of Legends v4.20 Learning Environment (using a modified version of the LeagueSandbox's GameServer project, not the original server from Riot). It exposes a custom machine learning API for the GameServer project as a Python RL Environment. PyLoL provides an interface for RL agents to interact with the League of Legends v4.20, getting observations and sending actions.
 

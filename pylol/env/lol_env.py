@@ -420,6 +420,10 @@ class LoLEnv(environment.Base):
 
         return self._observe()
 
+    def broadcast_msg(self, msg):
+        for c in self._controllers:
+            c.broadcast_msg(msg)
+
     def save_replay(self, replay_dir, prefix=None):
         """Saves a replay to a custom replay file."""
         if prefix is None:

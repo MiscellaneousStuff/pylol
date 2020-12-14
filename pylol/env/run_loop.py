@@ -50,7 +50,7 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
             total_episodes += 1
             timesteps = env.reset()
             controller.player_teleport(1, 7500.0, 7500.0)
-            print("TELEPORTING 1st PLAYER")
+            env.broadcast_msg("CURRENTLY RUNNING EPISODE: %s" % total_episodes)
             # print("TIMESTEPS:", timesteps)
             for a in agents:
                 a.reset()

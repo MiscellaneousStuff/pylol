@@ -222,6 +222,15 @@ class RemoteController(object):
         
         return {"type": "attack", "data": action}
 
+    def broadcast_msg(self, msg):
+        if msg:
+            action = {
+                "msg": str(msg)
+            }
+            self.r.lpush("action", "message")
+            self.r.lpush("action", json.dumps(action))
+            return {"type": "message", "data": action}
+
     def player_spell(self, player_id, target_player_id, spell_slot, x, y):
         action = {
             "player_id": str(player_id),

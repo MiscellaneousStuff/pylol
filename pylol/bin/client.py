@@ -26,7 +26,7 @@ import os
 from absl import flags
 from absl import app
 
-from pylol.agents import base_agent, random_agent, scripted_agent, ppo_agent
+from pylol.agents import base_agent, random_agent, scripted_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.lib import point_flag

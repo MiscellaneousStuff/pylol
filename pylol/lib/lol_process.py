@@ -67,7 +67,8 @@ class LoLProcess(object):
 
         human_count = 1 if kwargs["human_observer"] else 0
         agent_count = len(kwargs["players"]) - human_count
-        multiplier = 7.5
+        multiplier = kwargs["multiplier"] if kwargs["multiplier"] else 7.5
+        step_multiplier = kwargs["step_multiplier"] if kwargs["step_multiplier"] else 1
 
         args = [
             exec_path,
@@ -77,6 +78,7 @@ class LoLProcess(object):
             "--human_count", str(human_count),
             "--agent_count", str(agent_count),
             "--multiplier", str(multiplier),
+            "--step_multiplier", str(step_multiplier)
         ]
 
         kwargs["multiplier"] = multiplier

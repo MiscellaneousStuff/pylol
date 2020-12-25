@@ -26,7 +26,7 @@ import os
 from absl import flags
 from absl import app
 
-from pylol.agents import base_agent, random_agent, scripted_agent
+from pylol.agents import base_agent, random_agent, scripted_agent, test_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.lib import point_flag
@@ -48,6 +48,8 @@ flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directo
 flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
 flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
 flags.DEFINE_bool("minion_spawns_enabled", False, "Toggles spawning of minions (default is False")
+flags.DEFINE_float("multiplier", 7.5, "How many observations and actions per second (default is 7.5)")
+flags.DEFINE_float("step_multiplier", 1, "Real-time step multiplier so 2 would be 2x real time (default is 1)")
 
 def main(unused_argv):
     players = []
@@ -62,7 +64,7 @@ def main(unused_argv):
             agents.append(random_agent.RandomAgent())
         elif FLAGS.agent == "scripted":
             agents.append(scripted_agent.ScriptedAgent())
-    
+
     with lol_env.LoLEnv(
         host=FLAGS.host,
         map_name=FLAGS.map,
@@ -73,7 +75,9 @@ def main(unused_argv):
         human_observer=FLAGS.run_client,
         cooldowns_enabled=FLAGS.enable_cooldowns,
         manacosts_enabled=FLAGS.manacosts_enabled,
-        config_path=FLAGS.config_path) as env:
+        config_path=FLAGS.config_path,
+        multiplier=FLAGS.multiplier,
+        step_multiplier=FLAGS.step_multiplier) as env:
 
         run_loop.run_loop(agents, env, max_episodes=FLAGS.max_episodes,
                           max_steps=FLAGS.max_steps)

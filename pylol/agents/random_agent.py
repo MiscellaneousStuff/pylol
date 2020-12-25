@@ -31,6 +31,8 @@ class RandomAgent(base_agent.BaseAgent):
 
     def step(self, obs):
         super(RandomAgent, self).step(obs)
+
+        #print("OBS:", obs.observation["me_unit"])
         function_id = numpy.random.choice(obs.observation["available_actions"])        
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
                 for arg in self.action_spec[0].functions[function_id].args]        

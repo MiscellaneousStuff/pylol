@@ -68,7 +68,9 @@ class LoLEnv(environment.Base):
                  cooldowns_enabled=False,
                  manacosts_enabled=False,
                  minion_spawns_enabled=False,
-                 config_path=""):
+                 config_path="",
+                 multiplier=7.5,
+                 step_multiplier=1):
         """Create a League of Legends v4.20 Env.
 
         Args:
@@ -122,7 +124,9 @@ class LoLEnv(environment.Base):
                           manacosts_enabled=manacosts_enabled,
                           minion_spawns_enabled=minion_spawns_enabled,
                           game_server_dir=game_server_dir,
-                          client_dir=client_dir)
+                          client_dir=client_dir,
+                          multiplier=multiplier,
+                          step_multiplier=step_multiplier)
 
         self._finalize()
 
@@ -368,10 +372,19 @@ class LoLEnv(environment.Base):
         
         # Automatically make this LAST timestep if someone died as that is end of episode
         # State needs to change before calculating rewards in we start next episode
+        """
+        NOTE: WARNING WARNING WARNING, IF ALL HAS GONE WRONG CHANGE THIS, CHECK HERE
+        NOTE: DEFINITELY MODIFY THIS FOR 1v1, 5v5 AND DIFFERENT TASKS IN THE FUTURE
+        NOTE: THIS WAS DISABLED TO ALLOW THE PPG EXPERIMENT TO RUN BECAUSE A RACE CONDITION
+        NOTE: ... IN THE BELOW CODE WAS CAUSING MULTIPLE RESETS PER WHEN ENV.RESET() WAS
+        NOTE: ... CALLED. NVM THIS IS HAPPENING OUTSIDE OF THE PPG EXPERIMENT AS WELL XD XD XD
+        """
         if self._controllers[0].someone_died(self._obs[0]["observation"]):
             # print("SOMEONE DIED LOL:", self._state)
             if self._state == environment.StepType.MID:
                 self._state = environment.StepType.LAST
+            elif self._state == environment.StepType.FIRST:
+                pass
             else:
                 self._last_agent_obs = [None] * self._num_agents
                 self._state = environment.StepType.FIRST

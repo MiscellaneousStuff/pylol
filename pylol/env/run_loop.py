@@ -49,7 +49,8 @@ def run_loop(agents, env, max_steps=0, max_episodes=0):
         while not max_episodes or total_episodes < max_episodes:
             total_episodes += 1
             timesteps = env.reset()
-            controller.player_teleport(1, 7500.0, 7500.0)
+            controller.player_teleport(1, 6900.0, 6900.0)
+            controller.player_teleport(2, 7100.0, 7100.0)
             env.broadcast_msg("CURRENTLY RUNNING EPISODE: %s" % total_episodes)
             # print("TIMESTEPS:", timesteps)
             for a in agents:

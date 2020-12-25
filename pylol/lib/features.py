@@ -35,42 +35,42 @@ from pylol.lib import common
 
 class ChampUnit(enum.IntEnum):
     """Indices into the `ChampUnit` observation."""
-    user_id		        = 0
-    position_x		    = 1
-    position_y          = 2
-    facing_angle		= 3
-    max_hp		        = 4
-    current_hp		    = 5
-    hp_regen		    = 6
-    max_mp		        = 7
-    current_mp		    = 8
-    mp_regen		    = 9
-    attack_damage		= 10
-    attack_speed		= 11
-    alive		        = 12
-    level		        = 13
-    armor		        = 14
-    mr		            = 15
-    current_gold		= 16
-    current_xp          = 17
-    death_count		    = 18
-    kill_count          = 19
-    move_speed		    = 20
-    my_team		        = 21
-    neutal		        = 22
-    dx_to_me		    = 23
-    dy_to_me		    = 24
-    distance_to_me		= 25
-    q_cooldown		    = 26
-    q_level		        = 27
-    w_cooldown	    	= 28
-    w_level		        = 29
-    e_cooldown	    	= 30
-    e_level		        = 31
-    r_cooldown	    	= 32
-    r_level		        = 33
-    sum_1_cooldown		= 34
-    sum_2_cooldown		= 35
+    user_id		            = 0
+    position_x		        = 1
+    position_y              = 2
+    facing_angle		    = 3
+    max_hp		            = 4
+    current_hp		        = 5
+    hp_regen		        = 6
+    max_mp		            = 7
+    current_mp		        = 8
+    mp_regen		        = 9
+    attack_damage		    = 10
+    attack_speed		    = 11
+    alive		            = 12
+    level		            = 13
+    armor		            = 14
+    mr		                = 15
+    current_gold		    = 16
+    current_xp              = 17
+    death_count		        = 18
+    kill_count              = 19
+    move_speed		        = 20
+    my_team		            = 21
+    neutal		            = 22
+    dx_to_me		        = 23
+    dy_to_me		        = 24
+    distance_to_me		    = 25
+    q_cooldown		        = 26
+    q_level		            = 27
+    w_cooldown	    	    = 28
+    w_level		            = 29
+    e_cooldown	    	    = 30
+    e_level		            = 31
+    r_cooldown	    	    = 32
+    r_level		            = 33
+    sum_1_cooldown		    = 34
+    sum_2_cooldown		    = 35
 
 class AgentInterfaceFormat(object):
     """Observation and action interface format specific to a particular agent."""
@@ -376,7 +376,7 @@ class Features(object):
             champ_unit["r_cooldown"],
             champ_unit["r_level"],
             champ_unit["sum_1_cooldown"],
-            champ_unit["sum_2_cooldown"]
+            champ_unit["sum_2_cooldown"],
         ], names=ChampUnit, dtype=np.float32) for champ_unit in obs["observation"]["champ_units"]]
 
         # Observation output

@@ -32,11 +32,23 @@ it will do nothing) and scripted will have the agents just attack each other.
 
 ## Get PyLoL
 
+### PyPI
+
+The easiest way to get PyLoL is to use pip:
+
+```shell
+pip install pylol-rl
+```
+
+That will install the `pylol` package along with all the required dependencies.
+virtualenv can help manage your dependencies. You may also need to upgrade pip:
+`pip install --upgrade pip` for the `pylol` dependency.
+
 ### From Source
 
 You can install PyLoL from a local clone of the git repo:
 
 ```shell
 git clone https://github.com/MiscellaneousStuff/pylol.git
-pip3 install --upgrade pylol/
+pip install --upgrade pylol/
 ```

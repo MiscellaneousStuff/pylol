@@ -35,10 +35,11 @@ Read the README at https://github.com/MiscellaneousStuff/pylol for more informat
 """
 
 setup(
-    name='PyLoL',
+    name='pylol-rl',
     version='1.0.0',
     description='PyLoL environment and library for training agents.',
     long_description=description,
+    long_description_content_type="text/markdown",
     author='MiscellaneousStuff',
     author_email='raokosan@gmail.com',
     license='MIT License',

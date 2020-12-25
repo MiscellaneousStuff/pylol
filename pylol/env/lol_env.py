@@ -21,6 +21,7 @@
 # SOFTWARE.
 """A League of Legends v4.20 environment."""
 
+from configparser import ConfigParser
 import collections
 from absl import logging
 import random
@@ -105,12 +106,16 @@ class LoLEnv(environment.Base):
         
         # Extract directories here
         try:
-          with open(config_path) as f:
-            game_server_dir, client_dir = f.read().split("\n")
-            print("GAMESERVER DIR:", game_server_dir)
-            print("CLIENT DIR:", client_dir)
+            with open(config_path) as f:
+                cfg = ConfigParser()
+                cfg.read_string(f.read())
+                game_server_dir = cfg.get("dirs", "gameserver")
+                client_dir = cfg.get("dirs", "lolclient")
+                #game_server_dir, client_dir = f.read().split("\n")
+                print("GAMESERVER DIR:", game_server_dir)
+                print("CLIENT DIR:", client_dir)
         except:
-          raise IOError("Could not open config file: '%s'" % config_path)
+            raise IOError("Could not open config file: '%s'" % config_path)
 
         self._map_name = map_name
         self._run_config = run_configs.get(game_server_dir)

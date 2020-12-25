@@ -22,6 +22,8 @@
 
 """PyLoL module: https://github.com/MiscellaneousStuff/pylol ."""
 
+__version__ = "1.0.0"
+
 import os
 
 def load_tests(loader, standard_tests, unused_pattern):

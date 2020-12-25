@@ -26,7 +26,7 @@ import os
 from absl import flags
 from absl import app
 
-from pylol.agents import base_agent, random_agent, scripted_agent, test_agent
+from pylol.agents import base_agent, random_agent, scripted_agent
 from pylol.env import lol_env
 from pylol.env import run_loop
 from pylol.lib import point_flag
@@ -44,7 +44,8 @@ flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")
 flags.DEFINE_integer("max_steps", 0, "Maximum number of steps to run")
 flags.DEFINE_string("host", "localhost", "Host of GameServer and Redis")
-flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of GameServer, League client respectively")
+#flags.DEFINE_string("config_path", "./config_dirs.txt", "File containing directories of GameServer, League client respectively")
+flags.DEFINE_string("config_path", "./config.txt", "File containing directories of GameServer, League client respectively")
 flags.DEFINE_bool("enable_cooldowns", False, "Toggles cooldowns (default is False)")
 flags.DEFINE_bool("manacosts_enabled", False, "Toggles mana costs for spells (default is False)")
 flags.DEFINE_bool("minion_spawns_enabled", False, "Toggles spawning of minions (default is False")

@@ -67,9 +67,9 @@ class LoLProcess(object):
 
         human_count = 1 if kwargs["human_observer"] else 0
         agent_count = len(kwargs["players"]) - human_count
-        multiplier = kwargs["multiplier"] if kwargs["multiplier"] else 7.5
-        step_multiplier = kwargs["step_multiplier"] if kwargs["step_multiplier"] else 1
-
+        multiplier = 7.5 if "multiplier" not in kwargs else kwargs["multiplier"]
+        step_multiplier = 1 if "step_multiplier" not in kwargs else kwargs["step_multiplier"]
+        replay_path = "" if "replay_path" not in kwargs else kwargs["replay_path"]
         args = [
             exec_path,
             "--host", self.host,
@@ -78,7 +78,8 @@ class LoLProcess(object):
             "--human_count", str(human_count),
             "--agent_count", str(agent_count),
             "--multiplier", str(multiplier),
-            "--step_multiplier", str(step_multiplier)
+            "--step_multiplier", str(step_multiplier),
+            "--replay_path", str(replay_path)
         ]
 
         kwargs["multiplier"] = multiplier

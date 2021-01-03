@@ -38,7 +38,7 @@ point_flag.DEFINE_point("feature_move_range", "8",
                         "Resolution for screen feature layers.")
 flags.DEFINE_string("players", "Ezreal.BLUE,Ezreal.PURPLE", "Formatted list of champions and teams")
 flags.DEFINE_string("map", "Old Summoners Rift", "Name of league map to use.")
-flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
+flags.DEFINE_bool("save_replay", False, "Whether to save a replay at the end.")
 flags.DEFINE_bool("run_client", False, "Whether to run the league client or not.")
 flags.DEFINE_string("agent", "random", "Which inbuilt agent to run")
 flags.DEFINE_integer("max_episodes", 0, "Maximum number of episodes to run")

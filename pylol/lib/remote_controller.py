@@ -309,7 +309,6 @@ class RemoteController(object):
         self.r.lpush("command", json.dumps(command))
 
         replay_json = self.r.brpop("command_data", self.timeout)
-        print("REPLAY JSON", replay_json)
         if replay_json == None:
             raise ConnectionError("GameServer couldn't provide replay json data")
         

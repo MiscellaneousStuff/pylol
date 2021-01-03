@@ -52,3 +52,24 @@ You can install PyLoL from a local clone of the git repo:
 git clone https://github.com/MiscellaneousStuff/pylol.git
 pip install --upgrade pylol/
 ```
+
+## Config
+
+Once you have PyLoL installed, you will need to create a config.txt file with
+the following format:
+
+```config
+[dirs]
+gameserver = .../LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/
+lolclient = .../RADS/solutions/lol_game_client_sln/releases/0.0.1.68/deploy/
+```
+
+NOTE: You do not need to have the League of Legends client installed to use PyLoL,
+you only need the GameServer installed. If you do not have the League of Legends
+client installed, leave the `lolclient` option as follows
+
+```config
+[dirs]
+gameserver = .../LeagueSandbox-RL-Learning/GameServerConsole/bin/Debug/netcoreapp3.0/
+lolclient = 
+```

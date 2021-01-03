@@ -321,6 +321,7 @@ def start_client(host="192.168.0.16", port="5119", client_dir="", playerId="1"):
     print("LOL CLIENT HOST, PORT, CLIENT_PATH:", host, port, client_dir)
     LeagueOfLegendsClient = None
     LeagueOfLegendsClientArgs = [
+        "wine",
         "./League of Legends.exe",
         "8394",
         "",

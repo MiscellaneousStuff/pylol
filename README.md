@@ -9,6 +9,8 @@
 
 # PyLoL - League of Legends v4.20 Learning Environment
 [![Downloads](https://pepy.tech/badge/pylol-rl)](https://pepy.tech/project/pylol-rl)
+[![Downloads](https://pepy.tech/badge/pylol-rl/month)](https://pepy.tech/project/pylol-rl)
+[![Downloads](https://pepy.tech/badge/pylol-rl/week)](https://pepy.tech/project/pylol-rl)
 
 PyLoL is the Python component of the League of Legends v4.20 Learning Environment (using a modified version of the LeagueSandbox's GameServer project, not the original server from Riot). It exposes a custom machine learning API for the GameServer project as a Python RL Environment. PyLoL provides an interface for RL agents to interact with the League of Legends v4.20, getting observations and sending actions.
 

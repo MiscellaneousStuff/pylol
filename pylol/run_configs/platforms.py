@@ -74,8 +74,13 @@ class Linux(LocalBase):
         
     @classmethod
     def priority(cls):
-        if platform.system() == "Linux":
+        if platform.system() in ["Linux", "Darwin"]:
             return 1
     
     def start(self, **kwargs):
+        # Set necessary environment variables for macOS
+        if platform.system() == "Darwin":
+            os.environ['DYLD_LIBRARY_PATH'] = "/opt/homebrew/lib"
+            os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = "/opt/homebrew/lib"
+            
         return super(Linux, self).start(**kwargs)

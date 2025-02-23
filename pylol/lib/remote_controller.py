@@ -23,6 +23,7 @@
 
 import sys
 import platform
+import time
 
 from absl import logging
 from absl import flags
@@ -83,6 +84,7 @@ class RemoteController(object):
                 "--port", str(self._kwargs["redis_port"])]
             print("REDIS ARGS:", arr)
             self._proc = subprocess.Popen(arr)
+            time.sleep(3) # NOTE: Our code contains a race condition so we're using sleep to fix it, yes i know...
         except SubprocessError as e:
             print("Could not open redis. Error message: '%s'" % e)
     

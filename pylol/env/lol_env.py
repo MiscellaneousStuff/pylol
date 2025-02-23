@@ -71,7 +71,8 @@ class LoLEnv(environment.Base):
                  minion_spawns_enabled=False,
                  config_path="",
                  multiplier=7.5,
-                 step_multiplier=1):
+                 step_multiplier=1,
+                 max_steps_per_episode=0):
         """Create a League of Legends v4.20 Env.
 
         Args:
@@ -120,6 +121,7 @@ class LoLEnv(environment.Base):
         self._map_name = map_name
         self._run_config = run_configs.get(game_server_dir)
         self._game_info = None
+        self.max_steps_per_episode = max_steps_per_episode
 
         self._launch_game(host=host,
                           human_observer=human_observer,
@@ -384,7 +386,10 @@ class LoLEnv(environment.Base):
         NOTE: ... IN THE BELOW CODE WAS CAUSING MULTIPLE RESETS PER WHEN ENV.RESET() WAS
         NOTE: ... CALLED. NVM THIS IS HAPPENING OUTSIDE OF THE PPG EXPERIMENT AS WELL XD XD XD
         """
-        if self._controllers[0].someone_died(self._obs[0]["observation"]):
+        # Only check max steps if max_steps_per_episode is greater than 0
+        max_steps_per_ep = self.max_steps_per_episode > 0 and \
+            self._episode_steps >= self.max_steps_per_episode
+        if self._controllers[0].someone_died(self._obs[0]["observation"]) or max_steps_per_ep:
             # print("SOMEONE DIED LOL:", self._state)
             if self._state == environment.StepType.MID:
                 self._state = environment.StepType.LAST
@@ -408,12 +413,19 @@ class LoLEnv(environment.Base):
         # print("OBS => SOMEONE_DIED:", self._obs)
 
         # print("lol_env._observe.self._agent_obs :=", self._agent_obs)
+        # ret_val = tuple(environment.TimeStep(
+        #     step_type=self._state,
+        #     reward=r,
+        #     discount=1,
+        #     observation=o
+        # ) for r, o in zip(reward, self._agent_obs))
+
         ret_val = tuple(environment.TimeStep(
             step_type=self._state,
             reward=r,
             discount=1,
             observation=o
-        ) for r, o in zip(reward, self._agent_obs))
+        ) for r, o in zip(reward, self._obs))
 
         return ret_val
 

@@ -72,6 +72,19 @@ class ChampUnit(enum.IntEnum):
     sum_1_cooldown		    = 34
     sum_2_cooldown		    = 35
 
+class Missile(enum.IntEnum):
+    """Indices into the `Missile` observation."""
+    position_x = 0
+    position_y = 1
+    my_team = 2 
+    neutral = 3
+    dx_to_me = 4
+    dy_to_me = 5
+    distance_to_me = 6
+    speed = 7
+    owner_id = 8
+    projectile_name = 9
+
 class AgentInterfaceFormat(object):
     """Observation and action interface format specific to a particular agent."""
     
@@ -213,7 +226,8 @@ class Features(object):
             "my_id": (0,),
             "game_time": (0,),
             "me_unit": (len(ChampUnit),),
-            "enemy_unit": (len(ChampUnit),)
+            "enemy_unit": (len(ChampUnit),),
+            "missiles": (None, len(Missile),) 
         })
         
         """
@@ -379,12 +393,28 @@ class Features(object):
             champ_unit["sum_2_cooldown"],
         ], names=ChampUnit, dtype=np.float32) for champ_unit in obs["observation"]["champ_units"]]
 
+        # Transform missile observations
+        missiles = [named_array.NamedNumpyArray([
+            missile["position"]["X"],
+            missile["position"]["Y"], 
+            missile["my_team"],
+            missile["neutral"],
+            missile["dx_to_me"],
+            missile["dy_to_me"],
+            missile["distance_to_me"],
+            missile["speed"],
+            missile["owner_id"],
+            hash(missile["projectile_name"]) # Convert string to numeric hash
+        ], names=Missile, dtype=np.float32) for missile in obs["observation"]["projectiles"]]
+
+
         # Observation output
         out = named_array.NamedDict({
             "my_id": float(me_id),
             "game_time": float(obs["observation"]["game_time"]),
             "me_unit": champ_units[0 if me_id == 1 else 1],
-            "enemy_unit": champ_units[0 if enemy_id == 1 else 1]
+            "enemy_unit": champ_units[0 if enemy_id == 1 else 1],
+            "missiles": np.array(missiles)
         })
 
         # Print original observation
